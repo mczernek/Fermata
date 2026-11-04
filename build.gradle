@@ -30,6 +30,8 @@ ext {
                     depends: 'exoplayer,translate'
             ],
     ]
+
+    APP_ID = 'me.aap.fermata.mczernek'
 }
 
 buildscript {
