@@ -659,6 +659,11 @@ public class SettingsFragment extends MainActivityFragment
 				});
 			}
 		}
+		sub1.addButton(o -> {
+			o.title = R.string.app_version;
+			o.csubtitle = BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ')';
+			o.onClick = () -> {};
+		});
 
 		return new PreferenceViewAdapter(set) {
 			@Override

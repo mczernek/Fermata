@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <automotiveApp xmlns:tools="http://schemas.android.com/tools">
     <uses name="media" />
-<!--    <uses name="template" />-->
+    <!-- Required for the full screen (navigation) car apps to be listed in Android Auto.
+         Upstream disabled it, because since AA 17.3 it may conflict with the media service. -->
+    <uses name="template" />
     <uses
         name="service"
         tools:ignore="InvalidUsesTagAttribute" />

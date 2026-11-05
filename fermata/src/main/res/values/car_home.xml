@@ -7,4 +7,5 @@
     <string name="car_home_pref_sub">Replace the navigation bar with a home screen of large tiles. The floating button goes back, a long press goes home</string>
     <string name="now_playing">Now playing</string>
     <string name="voice_assistant">Voice</string>
+    <string name="app_version">Version</string>
 </resources>
