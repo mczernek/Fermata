@@ -117,6 +117,18 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name="me.aap.fermata.auto.TvCarService"
+            android:exported="true"
+            android:icon="@drawable/car_app_tv"
+            android:label="@string/addon_name_tv"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.NAVIGATION" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name="me.aap.fermata.auto.ProjectionActivity"
             android:excludeFromRecents="true"

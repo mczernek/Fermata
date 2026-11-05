@@ -139,7 +139,7 @@ public class TvRootItem extends ItemContainer<TvM3uItem> implements TvItem {
 				|| id.startsWith(TvM3uItem.SCHEME);
 	}
 
-	public void addSource(TvM3uFile m3u) {
+	public FutureSupplier<Void> addSource(TvM3uFile m3u) {
 		int counter = getIntPref(SOURCE_COUNTER) + 1;
 		Pref<Supplier<String>> id = Pref.s("M3UID#" + counter);
 
@@ -148,7 +148,7 @@ public class TvRootItem extends ItemContainer<TvM3uItem> implements TvItem {
 			e.setStringPref(id, TvM3uFileSystem.getInstance().toId(m3u.getRid()));
 		}
 
-		addItem(TvM3uItem.create(this, m3u, counter));
+		return addItem(TvM3uItem.create(this, m3u, counter));
 	}
 
 	@Override

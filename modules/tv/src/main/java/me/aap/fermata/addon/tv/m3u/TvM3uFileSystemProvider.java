@@ -50,6 +50,20 @@ public class TvM3uFileSystemProvider extends M3uFileSystemProvider {
 		});
 	}
 
+	/**
+	 * Creates a source without asking the user.
+	 *
+	 * @param url the playlist URL or local file path
+	 */
+	public FutureSupplier<TvM3uFile> create(String name, String url) {
+		BasicPreferenceStore ps = new BasicPreferenceStore();
+		try (PreferenceStore.Edit e = ps.editPreferenceStore()) {
+			e.setStringPref(NAME, name);
+			e.setStringPref(URL, url);
+		}
+		return load(ps, TvM3uFileSystem.getInstance()).cast();
+	}
+
 	public FutureSupplier<Boolean> edit(MainActivityDelegate a, TvM3uFile f) {
 		BasicPreferenceStore ps = new BasicPreferenceStore();
 		String url = f.getUrl();

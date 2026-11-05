@@ -56,9 +56,12 @@ Request upload key reset); the app signing key itself is managed by Google.
 * Car home screen with large tiles instead of the bottom navigation bar (Settings -> Interface ->
   Android Auto -> Home screen with tiles).
 * "Fermata Full Screen" Android Auto app, showing the Fermata UI on the whole car screen.
-* "Youtube" and "Web browser" Android Auto apps - the same full screen UI, restricted to a single
-  addon (`YoutubeCarService`, `WebBrowserCarService`). The `web` module is delivered at install
-  time, so both are always available.
+* "Youtube", "Web browser" and "TV" Android Auto apps - the same full screen UI, restricted to a
+  single addon (`YoutubeCarService`, `WebBrowserCarService`, `TvCarService`). The `web` and `tv`
+  modules are delivered at install time, so they are always available.
+* Default TV channels: free, official streams in `modules/tv/src/main/res/raw/tv_*.m3u`, each
+  added once as a TV source ("Polska", "World News", "Sport & Music"). The local copies are
+  refreshed on every version code change, so edit these files and release to update the lists.
 * The debug-only `CarDisplayPreviewActivity` accepts `--es addon <addon class>` to preview them.
 
 ## !!!Be aware of scam!!! The sites like https :// fermata-auto . com  are 100% scam. This app is free and opensource!

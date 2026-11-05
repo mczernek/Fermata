@@ -47,7 +47,10 @@ public class TvAddon implements MediaLibAddon {
 	}
 
 	public TvRootItem getRootItem(DefaultMediaLib lib) {
-		if ((root == null) || (root.getLib() != lib)) root = new TvRootItem(lib);
+		if ((root == null) || (root.getLib() != lib)) {
+			root = new TvRootItem(lib);
+			DefaultChannels.install(root);
+		}
 		return root;
 	}
 
