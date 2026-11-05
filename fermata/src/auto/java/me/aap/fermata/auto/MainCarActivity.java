@@ -35,7 +35,9 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView.OnEditorActionListener;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -54,6 +56,7 @@ import me.aap.fermata.ui.view.MediaItemListView;
 import me.aap.fermata.ui.view.VideoView;
 import me.aap.utils.async.FutureSupplier;
 import me.aap.utils.function.Cancellable;
+import me.aap.utils.function.Function;
 import me.aap.utils.function.Supplier;
 import me.aap.utils.log.Log;
 import me.aap.utils.ui.activity.ActivityDelegate;
@@ -65,12 +68,24 @@ import me.aap.utils.ui.menu.OverlayMenu;
  */
 public class MainCarActivity extends CarActivity implements FermataActivity {
 	static FermataMediaServiceConnection service;
+	private static Function<Context, ActivityDelegate> contextToDelegate;
 	@SuppressWarnings("unchecked")
 	@NonNull
 	private FutureSupplier<MainActivityDelegate> delegate =
 			(FutureSupplier<MainActivityDelegate>) NO_DELEGATE;
 	private CarEditText editText;
 	private TextWatcher textWatcher;
+	@IdRes
+	private int initialFragmentId;
+
+	/**
+	 * The class name of the addon to show on start, or null for the default screen. Subclasses are
+	 * shown as separate car apps, e.g. YouTube.
+	 */
+	@Nullable
+	protected String getInitialAddon() {
+		return null;
+	}
 
 	@NonNull
 	@Override
@@ -88,17 +103,14 @@ public class MainCarActivity extends CarActivity implements FermataActivity {
 		MainActivityDelegate.setTheme(this, true);
 		super.onCreate(savedInstanceState);
 		initCarActivity(this);
-		FermataMediaServiceConnection s = service;
-
-		if ((s != null) && s.isConnected()) {
-			onCreate(savedInstanceState, s);
-		} else {
-			delegate = FermataMediaServiceConnection.connect(this).main()
-					.onFailure(err -> showAlert(getContext(), String.valueOf(err))).map(c -> {
-						service = c;
-						return onCreate(savedInstanceState, c);
-					});
-		}
+		// Completes immediately, if the service is connected and the addon is loaded
+		delegate = CarDisplayHost.getFragmentId(getInitialAddon()).then(id -> {
+			initialFragmentId = id;
+			FermataMediaServiceConnection s = service;
+			if ((s != null) && s.isConnected()) return completed(s);
+			return FermataMediaServiceConnection.connect(this).main().map(c -> service = c);
+		}).main().onFailure(err -> showAlert(getContext(), String.valueOf(err)))
+				.map(c -> onCreate(savedInstanceState, c));
 	}
 
 	static void initCarActivity(CarActivity a) {
@@ -110,10 +122,19 @@ public class MainCarActivity extends CarActivity implements FermataActivity {
 
 	private MainActivityDelegate onCreate(Bundle state, FermataMediaServiceConnection s) {
 		MainActivityDelegate d = new MainActivityDelegate(this, s.createBinder());
-		ActivityDelegate.setContextToDelegate(ctx -> d);
+		Function<Context, ActivityDelegate> c2d = ctx -> d;
+		ActivityDelegate.setContextToDelegate(contextToDelegate = c2d);
 		delegate = completed(d);
 		d.onActivityCreate(state);
+		if (findViewById(R.id.main_activity) instanceof ViewGroup root) {
+			root.addView(new CarNavOverlay(d));
+		}
 		return d;
+	}
+
+	@Override
+	public int getInitialFragmentId() {
+		return initialFragmentId;
 	}
 
 	@Override
@@ -126,8 +147,14 @@ public class MainCarActivity extends CarActivity implements FermataActivity {
 	@SuppressWarnings("unchecked")
 	public void onDestroy() {
 		super.onDestroy();
-		getActivityDelegate().onSuccess(MainActivityDelegate::onActivityDestroy)
-				.thenRun(() -> ActivityDelegate.setContextToDelegate(null));
+		getActivityDelegate().onSuccess(d -> {
+			d.onActivityDestroy();
+			// Another car app (e.g. YouTube) may have created its own activity in the meantime
+			if (contextToDelegate != null && contextToDelegate.apply(this) == d) {
+				contextToDelegate = null;
+				ActivityDelegate.setContextToDelegate(null);
+			}
+		});
 		delegate = (FutureSupplier<MainActivityDelegate>) NO_DELEGATE;
 	}
 
@@ -536,6 +563,7 @@ public class MainCarActivity extends CarActivity implements FermataActivity {
 
 		private boolean focusFb(ViewGroup screen, float cursorX, float cursorY) {
 			View fb = screen.findViewById(R.id.floating_button);
+			if ((fb == null) || (fb.getVisibility() != VISIBLE)) return false;
 			float fbX = fb.getX();
 			float fbY = fb.getY();
 			if ((cursorX >= fbX) && (cursorX < fbX + fb.getWidth()) && (cursorY >= fbY) &&

@@ -124,7 +124,19 @@ public class TvFragment extends MediaLibFragment {
 	@Override
 	public void contributeToNavBarMenu(OverlayMenu.Builder builder) {
 		super.contributeToNavBarMenu(builder);
-		if (isRootItem()) return;
+
+		if (isRootItem()) {
+			// Otherwise provided by the floating button, that is hidden in the car
+			if (getMainActivity().getFloatingButton().isHidden()) {
+				builder.addItem(R.id.tv_add_source, R.drawable.tv_add, R.string.add_tv_source)
+						.setHandler(i -> {
+							addSource();
+							return true;
+						});
+			}
+			return;
+		}
+
 		TvAdapter a = getAdapter();
 
 		if (a.getListView().isSelectionActive() && a.hasSelectable() && a.hasSelected()) {

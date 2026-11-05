@@ -1,7 +1,7 @@
 package me.aap.fermata.auto;
 
 /**
- * A separate car app, opening the Fermata UI with YouTube.
+ * A separate full screen (navigation) car app, opening the Fermata UI with YouTube.
  */
 public class YoutubeCarService extends FullScreenCarService {
 

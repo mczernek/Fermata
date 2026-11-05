@@ -42,6 +42,8 @@ public class YoutubeAddon extends WebBrowserAddon implements PreferenceStore.Lis
 	private static final Pref<BooleanSupplier> YT_OPEN_ON_START = Pref.b("YT_OPEN_ON_START", false);
 	private static final Pref<BooleanSupplier> YT_AUTO_HIGHEST_QUALITY =
 			Pref.b("YT_AUTO_HIGHEST_QUALITY", false);
+	private static final Pref<BooleanSupplier> YT_AUTO_FULL_SCREEN =
+			Pref.b("YT_AUTO_FULL_SCREEN", true);
 	private static final Pref<BooleanSupplier> YT_SKIP_ADD = AUTO ? Pref.b("YT_SKIP_ADD", true) : null;
 	private boolean ignorePrefChange;
 
@@ -99,6 +101,12 @@ public class YoutubeAddon extends WebBrowserAddon implements PreferenceStore.Lis
 			o.store = getPreferenceStore();
 			o.pref = YT_AUTO_HIGHEST_QUALITY;
 			o.title = R.string.auto_highest_video_quality;
+			o.visibility = visibility;
+		});
+		set.addBooleanPref(o -> {
+			o.store = getPreferenceStore();
+			o.pref = YT_AUTO_FULL_SCREEN;
+			o.title = R.string.auto_full_screen;
 			o.visibility = visibility;
 		});
 
@@ -163,6 +171,13 @@ public class YoutubeAddon extends WebBrowserAddon implements PreferenceStore.Lis
 
 	void setScale(VideoScale scale) {
 		getPreferenceStore().applyStringPref(VIDEO_SCALE, scale.prefName());
+	}
+
+	/**
+	 * Enter the full screen, when a video starts playing.
+	 */
+	boolean autoFullScreen() {
+		return getPreferenceStore().getBooleanPref(YT_AUTO_FULL_SCREEN);
 	}
 
 	boolean autoHighestQuality() {

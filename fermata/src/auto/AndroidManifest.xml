@@ -55,6 +55,49 @@
             </intent-filter>
         </service>
 
+        <!-- The projection based (split screen) versions of the addon car apps -->
+        <service
+            android:name="me.aap.fermata.auto.YoutubeCarActivityService"
+            android:exported="true"
+            android:icon="@drawable/car_app_youtube"
+            android:label="@string/addon_name_youtube"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION" />
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION_OEM" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="me.aap.fermata.auto.NetflixCarActivityService"
+            android:exported="true"
+            android:icon="@drawable/car_app_netflix"
+            android:label="@string/addon_name_netflix"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION" />
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION_OEM" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="me.aap.fermata.auto.TvCarActivityService"
+            android:exported="true"
+            android:icon="@drawable/car_app_tv"
+            android:label="@string/addon_name_tv"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION" />
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION_OEM" />
+            </intent-filter>
+        </service>
+
         <service
             android:name="me.aap.fermata.auto.MirrorService"
             android:exported="true"
@@ -97,7 +140,19 @@
             android:name="me.aap.fermata.auto.YoutubeCarService"
             android:exported="true"
             android:icon="@drawable/car_app_youtube"
-            android:label="@string/addon_name_youtube"
+            android:label="@string/car_app_youtube_fs"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.NAVIGATION" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="me.aap.fermata.auto.NetflixCarService"
+            android:exported="true"
+            android:icon="@drawable/car_app_netflix"
+            android:label="@string/car_app_netflix_fs"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
@@ -121,7 +176,7 @@
             android:name="me.aap.fermata.auto.TvCarService"
             android:exported="true"
             android:icon="@drawable/car_app_tv"
-            android:label="@string/addon_name_tv"
+            android:label="@string/car_app_tv_fs"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />

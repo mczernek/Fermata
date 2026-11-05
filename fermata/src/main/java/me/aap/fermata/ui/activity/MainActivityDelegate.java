@@ -479,6 +479,24 @@ public class MainActivityDelegate extends ActivityDelegate
 		showFragment(R.id.car_home_fragment);
 	}
 
+	/**
+	 * The Home action of the car action strip.
+	 */
+	public void goHome() {
+		if (hideActiveMenu()) return;
+		if (isCarHome()) showHome();
+		else backToNavFragment();
+	}
+
+	/**
+	 * The Menu action of the car action strip - the menu of the active screen, that is shown by the
+	 * floating button or the navigation bar otherwise.
+	 */
+	public void showNavMenu() {
+		if (hideActiveMenu()) return;
+		getNavBarMediator().showMenu(this);
+	}
+
 	@NonNull
 	public MainActivityPrefs getPrefs() {
 		return Prefs.instance;
@@ -1038,6 +1056,8 @@ public class MainActivityDelegate extends ActivityDelegate
 		controlPanel = a.findViewById(R.id.control_panel);
 		floatingButton = a.findViewById(R.id.floating_button);
 		floatingButton.setScale(getPrefs().getTextIconSizePref(this));
+		// In the car, Home, Back and Menu are provided by the car action strip or the overlay
+		if (AUTO && a.isCarActivity()) floatingButton.setHidden(true);
 		controlPanel.bind(getMediaServiceBinder());
 		if (isCarHome()) navBar.setVisibility(GONE);
 

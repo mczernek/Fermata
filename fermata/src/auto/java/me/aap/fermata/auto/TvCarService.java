@@ -1,7 +1,7 @@
 package me.aap.fermata.auto;
 
 /**
- * A separate car app, opening the Fermata UI with TV.
+ * A separate full screen (navigation) car app, opening the Fermata UI with TV.
  */
 public class TvCarService extends FullScreenCarService {
 

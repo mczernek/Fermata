@@ -161,6 +161,10 @@ public final class CarDisplay {
 		if (host != null) host.back();
 	}
 
+	public void menu() {
+		if (host != null) host.menu();
+	}
+
 	public void click(float x, float y) {
 		finishScroll();
 		long time = uptimeMillis();

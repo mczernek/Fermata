@@ -60,12 +60,28 @@ Request upload key reset); the app signing key itself is managed by Google.
   `fermata/src/auto/res/xml/automotive_app_desc.xml` (upstream disabled it, as it may conflict
   with the media service since AA 17.3). Android Auto must have "Unknown sources" enabled in its
   developer settings to list them.
-* "Youtube", "Web browser" and "TV" Android Auto apps - the same full screen UI, opened on another
-  initial screen (`YoutubeCarService`, `WebBrowserCarService`, `TvCarService`). All of them share
-  one UI, so switching between them keeps the state. Home always opens the home screen with tiles.
-  The car action strip is shown over the content. In the split screen, tap the app icon in the
-  Android Auto rail to get back to the full screen. The `web` and `tv`
-  modules are delivered at install time, so they are always available.
+* "Youtube Full Screen", "Netflix Full Screen", "TV Full Screen" and "Web browser" Android Auto
+  apps - the same full screen UI, opened on another initial screen (`YoutubeCarService`,
+  `NetflixCarService`, `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
+  get the whole screen. All of them share one UI, so switching between them keeps the state. Home
+  always opens the home screen with tiles. The car action strip (Home, Back, Menu) is shown over
+  the content. In the split screen, tap the app icon in the Android Auto rail to get back to the
+  full screen. The `web` and `tv` modules are delivered at install time, so they are always
+  available.
+* "Youtube", "Netflix" and "TV" Android Auto apps - the regular, projection based versions (not
+  navigation apps), shown in the split screen like Fermata itself (`YoutubeCarActivityService`,
+  `NetflixCarActivityService`, `TvCarActivityService`, `MainCarActivity.getInitialAddon()`).
+* No floating button in the car. Its actions are on the car action strip of the full screen apps
+  and on the Home/Back/Menu overlay of the projection based apps (`CarNavOverlay`), that stays
+  visible in the video players too. TV: "Add M3U IPTV source" moved to the menu.
+* YouTube: the automatic full screen on playback clicks the player's own full screen button
+  (falls back to the full screen of the player, not the video element, which broke the aspect
+  ratio). It can be disabled: YouTube settings -> Open videos in full screen.
+* Netflix addon (`modules/web/.../netflix`): the mobile site has no player, so the web view poses
+  as desktop Chrome, like Chrome's "Desktop site" mode (`NetflixWebView`): desktop Linux
+  User-Agent with the web view's Chrome version, Chrome client hints instead of "Android WebView"
+  (not mobile, Linux), no `X-Requested-With` header, `navigator.platform` "Linux x86_64" and the
+  desktop viewport. Widevine (protected media) is granted by `FermataChromeClient`.
 * Default TV channels: free, official streams in `modules/tv/src/main/res/raw/tv_*.m3u`, each
   added once as a TV source ("Polska", "World News", "Sport & Music"). The local copies are
   refreshed on every version code change, so edit these files and release to update the lists.

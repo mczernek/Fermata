@@ -107,7 +107,7 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 				.onFailure(err -> Log.e(err, "Failed to create the car display UI"));
 	}
 
-	private static FutureSupplier<Integer> getFragmentId(@Nullable String addon) {
+	static FutureSupplier<Integer> getFragmentId(@Nullable String addon) {
 		if (addon == null) return completed(ID_NULL);
 		// Re-enables the addon, if it has been disabled in the settings
 		return AddonManager.get().getOrInstallAddon(addon).main()
@@ -179,11 +179,11 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 	}
 
 	void home() {
-		delegate.onSuccess(d -> {
-			if (d.hideActiveMenu()) return;
-			if (d.isCarHome()) d.showHome();
-			else d.backToNavFragment();
-		});
+		delegate.onSuccess(MainActivityDelegate::goHome);
+	}
+
+	void menu() {
+		delegate.onSuccess(MainActivityDelegate::showNavMenu);
 	}
 
 	void back() {

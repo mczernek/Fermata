@@ -48,6 +48,7 @@ public class FloatingButton extends FloatingActionButton implements ActivityList
 	@Px
 	private float borderWidth;
 	private float scale = 1f;
+	private boolean hidden;
 
 	public FloatingButton(Context context, AttributeSet attrs) {
 		this(context, attrs, com.google.android.material.R.attr.floatingActionButtonStyle);
@@ -139,6 +140,24 @@ public class FloatingButton extends FloatingActionButton implements ActivityList
 			Mediator m = getMediator();
 			if (m != null) m.disable(this);
 		}
+	}
+
+	/**
+	 * Keeps the button hidden, regardless of the visibility requested by the UI, e.g. if the same
+	 * actions are provided by other means.
+	 */
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+		if (hidden) super.setVisibility(GONE);
+	}
+
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	@Override
+	public void setVisibility(int visibility) {
+		super.setVisibility(hidden ? GONE : visibility);
 	}
 
 	protected ActivityDelegate getActivity() {

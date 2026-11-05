@@ -145,11 +145,40 @@ public class YoutubeWebView extends FermataWebView {
 				YoutubeSponsorBlock.getConfigJson(getAddon().getPreferenceStore()) + ");", null);
 	}
 
+	/**
+	 * Enters the full screen like the full screen button of the player does. The button is clicked
+	 * if found, otherwise the full screen is requested for the player.
+	 * <p>
+	 * Requesting the full screen for the video element itself makes the browser stretch the video
+	 * to the screen, while the player keeps the inline size and position of the video, so the
+	 * aspect ratio is wrong. In the full screen of the player, the player lays the video out.
+	 */
 	protected boolean requestFullScreen() {
-		loadUrl("javascript: var v = document.querySelector('video');\n" +
-				"if ('webkitRequestFullscreen' in v) v.webkitRequestFullscreen();\n" +
-				"else if ('requestFullscreen' in v) v.requestFullscreen();\n" +
-				"else " + JS_EVENT + "(" + JS_ERR + ", 'Method requestFullscreen not found in ' + v);");
+		loadUrl("javascript:\n" +
+				"(function() {\n" +
+				"  if (document.fullscreenElement || document.webkitFullscreenElement) return;\n" +
+				"  function request(e) {\n" +
+				"    if ('requestFullscreen' in e) e.requestFullscreen();\n" +
+				"    else if ('webkitRequestFullscreen' in e) e.webkitRequestFullscreen();\n" +
+				"    else " + JS_EVENT + "(" + JS_ERR + ", 'Method requestFullscreen not found in ' + e);\n" +
+				"  }\n" +
+				"  function requestPlayer() {\n" +
+				"    if (document.fullscreenElement || document.webkitFullscreenElement) return;\n" +
+				"    var p = document.querySelector('#player-container-id') ||\n" +
+				"      document.querySelector('#movie_player') ||\n" +
+				"      document.querySelector('.html5-video-player');\n" +
+				"    if (p == null) { var v = document.querySelector('video'); if (v != null) p = v.parentElement; }\n" +
+				"    if (p != null) request(p);\n" +
+				"    else " + JS_EVENT + "(" + JS_ERR + ", 'Player not found');\n" +
+				"  }\n" +
+				"  var b = document.querySelector('button.fullscreen-icon') ||\n" +
+				"    document.querySelector('.ytp-fullscreen-button') ||\n" +
+				"    document.querySelector('button[aria-label*=\"ullscreen\"]') ||\n" +
+				"    document.querySelector('button[aria-label*=\"ull screen\"]');\n" +
+				"  if (b == null) { requestPlayer(); return; }\n" +
+				"  b.click();\n" +
+				"  setTimeout(requestPlayer, 1000);\n" +
+				"})();");
 		return true;
 	}
 

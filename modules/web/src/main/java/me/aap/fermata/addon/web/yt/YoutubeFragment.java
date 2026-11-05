@@ -9,9 +9,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import me.aap.fermata.BuildConfig;
 import me.aap.fermata.addon.AddonManager;
@@ -39,7 +36,6 @@ import me.aap.utils.ui.view.ToolBarView;
 @SuppressWarnings("unused")
 public class YoutubeFragment extends WebBrowserFragment implements FermataServiceUiBinder.Listener {
 	private static final String DEFAULT_URL = "https://m.youtube.com";
-	private static final Set<String> DEFAULT_URLS = new HashSet<>(Arrays.asList(DEFAULT_URL, DEFAULT_URL + '/'));
 	private static final Pref<LongSupplier> RESUME_POS = Pref.l("YT_RESUME_POS", 0L);
 	private boolean playOnResume;
 
@@ -177,13 +173,26 @@ public class YoutubeFragment extends WebBrowserFragment implements FermataServic
 			FermataChromeClient chrome = v.getWebChromeClient();
 			if (chrome == null) return;
 
-			if (!DEFAULT_URLS.contains(getUrl())) chrome.enterFullScreen();
+			YoutubeAddon addon = AddonManager.get().getAddon(YoutubeAddon.class);
+			if ((addon != null) && addon.autoFullScreen() && isWatchPage(getUrl())) {
+				chrome.enterFullScreen();
+			}
 		} else if (YoutubeMediaEngine.isYoutubeItem(oldItem)) {
 			FermataWebView v = getWebView();
 			if (v == null) return;
 			FermataChromeClient chrome = v.getWebChromeClient();
 			if (chrome != null) chrome.exitFullScreen();
 		}
+	}
+
+	/**
+	 * Only the videos, opened from a watch page, enter the full screen automatically. Other pages,
+	 * e.g. the search results, may play muted previews.
+	 */
+	private static boolean isWatchPage(@Nullable String url) {
+		if (url == null) return false;
+		String path = android.net.Uri.parse(url).getPath();
+		return (path != null) && path.startsWith("/watch");
 	}
 
 	@Override
