@@ -7,6 +7,7 @@ import android.graphics.Rect;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarAppService;
 import androidx.car.app.CarContext;
@@ -36,8 +37,18 @@ import me.aap.utils.log.Log;
  * Unlike the projection based {@link CarService}, that Android Auto shows in a part of the split
  * screen, navigation apps get a surface covering the whole screen. The UI is rendered to this
  * surface by {@link CarDisplay}.
+ * <p>
+ * Subclasses may restrict the UI to a single addon, to be shown as a separate car app.
  */
 public class FullScreenCarService extends CarAppService {
+
+	/**
+	 * The class name of the addon, the UI is restricted to, or null to show the whole UI.
+	 */
+	@Nullable
+	protected String getDedicatedAddon() {
+		return null;
+	}
 
 	@NonNull
 	@Override
@@ -48,28 +59,30 @@ public class FullScreenCarService extends CarAppService {
 	@NonNull
 	@Override
 	public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
-		return new FullScreenSession();
+		return new FullScreenSession(getDedicatedAddon());
 	}
 
 	private static final class FullScreenSession extends Session
 			implements CarDisplay.InputHost, DefaultLifecycleObserver {
+		@Nullable
+		private final String dedicatedAddon;
 
-		FullScreenSession() {
+		FullScreenSession(@Nullable String dedicatedAddon) {
+			this.dedicatedAddon = dedicatedAddon;
 			getLifecycle().addObserver(this);
 		}
 
 		@NonNull
 		@Override
 		public Screen onCreateScreen(@NonNull Intent intent) {
-			CarDisplay.get().setInputHost(this);
+			CarDisplay.get().attach(this, dedicatedAddon);
 			return new DisplayScreen(getCarContext());
 		}
 
 		@Override
 		public void onDestroy(@NonNull LifecycleOwner owner) {
-			Log.i("Full screen session destroyed");
-			CarDisplay.get().setInputHost(null);
-			CarDisplay.get().close();
+			Log.i("Full screen session destroyed: ", dedicatedAddon);
+			CarDisplay.get().detach(this);
 		}
 
 		@Override

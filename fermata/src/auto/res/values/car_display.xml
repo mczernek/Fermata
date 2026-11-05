@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="full_screen_service_name">Fermata Full Screen</string>
+
+    <color name="car_app_youtube_bg">#FF0000</color>
+    <color name="car_app_web_browser_bg">#1A73E8</color>
 </resources>

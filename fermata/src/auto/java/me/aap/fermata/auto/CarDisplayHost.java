@@ -8,6 +8,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
 import static android.view.WindowManager.LayoutParams.TYPE_PRIVATE_PRESENTATION;
 import static me.aap.utils.async.Completed.completed;
 import static me.aap.utils.async.Completed.failed;
+import static me.aap.utils.ui.UiUtils.ID_NULL;
 
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -27,6 +28,7 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView.OnEditorActionListener;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
@@ -35,6 +37,8 @@ import androidx.fragment.app.FragmentHostCallback;
 import androidx.fragment.app.FragmentManager;
 
 import me.aap.fermata.FermataApplication;
+import me.aap.fermata.addon.AddonManager;
+import me.aap.fermata.addon.FermataFragmentAddon;
 import me.aap.fermata.media.service.FermataMediaServiceConnection;
 import me.aap.fermata.ui.activity.FermataActivity;
 import me.aap.fermata.ui.activity.MainActivity;
@@ -60,9 +64,14 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 			(FutureSupplier<MainActivityDelegate>) NO_DELEGATE;
 	@Nullable
 	private CarInputEditText input;
+	@IdRes
+	private int dedicatedFragmentId;
 	private boolean destroyed;
 
-	CarDisplayHost(Display display) {
+	/**
+	 * @param dedicatedAddon the class name of the addon, the UI is restricted to, or null
+	 */
+	CarDisplayHost(Display display, @Nullable String dedicatedAddon) {
 		super(MainActivityDelegate.attachBaseContext(
 				FermataApplication.get().createDisplayContext(display)), 0);
 		MainActivityDelegate.setTheme(this, true);
@@ -90,15 +99,25 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 		window.setCancelable(false);
 
 		fragments.dispatchCreate();
+		// Completes immediately, if the service is connected and the addon is loaded
+		delegate = getDedicatedFragmentId(dedicatedAddon).then(id -> {
+			dedicatedFragmentId = id;
+			return connect();
+		}).main().map(this::onCreate)
+				.onFailure(err -> Log.e(err, "Failed to create the car display UI"));
+	}
+
+	private static FutureSupplier<Integer> getDedicatedFragmentId(@Nullable String addon) {
+		if (addon == null) return completed(ID_NULL);
+		// Re-enables the addon, if it has been disabled in the settings
+		return AddonManager.get().getOrInstallAddon(addon).main()
+				.map(a -> ((FermataFragmentAddon) a).getFragmentId());
+	}
+
+	private FutureSupplier<FermataMediaServiceConnection> connect() {
 		FermataMediaServiceConnection s = service;
-		if ((s != null) && s.isConnected()) {
-			onCreate(s);
-		} else {
-			delegate = FermataMediaServiceConnection.connect(this).main().map(c -> {
-				service = c;
-				return onCreate(c);
-			}).onFailure(err -> Log.e(err, "Failed to connect to the media service"));
-		}
+		if ((s != null) && s.isConnected()) return completed(s);
+		return FermataMediaServiceConnection.connect(this).main().map(c -> service = c);
 	}
 
 	private MainActivityDelegate onCreate(FermataMediaServiceConnection c) {
@@ -166,6 +185,11 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 	@Override
 	public boolean isCarActivity() {
 		return true;
+	}
+
+	@Override
+	public int getDedicatedFragmentId() {
+		return dedicatedFragmentId;
 	}
 
 	@Override

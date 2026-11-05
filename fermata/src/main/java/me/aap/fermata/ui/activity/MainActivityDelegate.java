@@ -64,6 +64,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -334,6 +335,11 @@ public class MainActivityDelegate extends ActivityDelegate
 			return;
 		}
 
+		if (isDedicated()) {
+			showHome();
+			return;
+		}
+
 		String showAddon = getPrefs().getShowAddonOnStartPref();
 		if (showAddon != null) {
 			FermataAddon addon = AddonManager.get().getAddon(showAddon);
@@ -459,18 +465,32 @@ public class MainActivityDelegate extends ActivityDelegate
 	}
 
 	/**
-	 * In the car, the navigation bar is replaced by a home screen with large tiles.
+	 * In the car, the navigation bar is replaced by a home screen - either the large tiles, or the
+	 * fragment, the activity is dedicated to.
 	 */
 	public boolean isCarHome() {
-		return getPrefs().getCarHomePref(this);
+		return isDedicated() || getPrefs().getCarHomePref(this);
+	}
+
+	/**
+	 * The activity shows a single top level fragment only, e.g. YouTube.
+	 */
+	public boolean isDedicated() {
+		return getAppActivity().getDedicatedFragmentId() != ID_NULL;
 	}
 
 	public boolean isHomeActive() {
-		return getActiveFragmentId() == R.id.car_home_fragment;
+		return getActiveFragmentId() == getHomeFragmentId();
 	}
 
 	public void showHome() {
-		showFragment(R.id.car_home_fragment);
+		showFragment(getHomeFragmentId());
+	}
+
+	@IdRes
+	private int getHomeFragmentId() {
+		int id = getAppActivity().getDedicatedFragmentId();
+		return (id == ID_NULL) ? R.id.car_home_fragment : id;
 	}
 
 	@NonNull
@@ -725,10 +745,15 @@ public class MainActivityDelegate extends ActivityDelegate
 	@Nullable
 	@Override
 	public ActivityFragment showFragment(int id, Object input) {
+		boolean topLevel = isTopLevelFragment(id);
+		if (topLevel && isDedicated() && (id != getHomeFragmentId())) {
+			Log.d("Fragment ", id, " is not available in the dedicated mode");
+			return null;
+		}
 		BodyLayout b = getBody();
 		if (b.isVideoMode()) b.setMode(BodyLayout.Mode.BOTH);
 		// The nav bar is hidden, thus it does not track the top level fragments
-		if (isCarHome() && isTopLevelFragment(id)) setActiveNavItemId(id);
+		if (topLevel && isCarHome()) setActiveNavItemId(id);
 		return super.showFragment(id, input);
 	}
 

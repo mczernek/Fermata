@@ -56,6 +56,10 @@ Request upload key reset); the app signing key itself is managed by Google.
 * Car home screen with large tiles instead of the bottom navigation bar (Settings -> Interface ->
   Android Auto -> Home screen with tiles).
 * "Fermata Full Screen" Android Auto app, showing the Fermata UI on the whole car screen.
+* "Youtube" and "Web browser" Android Auto apps - the same full screen UI, restricted to a single
+  addon (`YoutubeCarService`, `WebBrowserCarService`). The `web` module is delivered at install
+  time, so both are always available.
+* The debug-only `CarDisplayPreviewActivity` accepts `--es addon <addon class>` to preview them.
 
 ## !!!Be aware of scam!!! The sites like https :// fermata-auto . com  are 100% scam. This app is free and opensource!
 

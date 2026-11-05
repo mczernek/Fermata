@@ -15,6 +15,8 @@ import android.view.Surface;
 
 import androidx.annotation.Nullable;
 
+import java.util.Objects;
+
 import me.aap.fermata.FermataApplication;
 import me.aap.utils.function.Cancellable;
 import me.aap.utils.log.Log;
@@ -42,6 +44,8 @@ public final class CarDisplay {
 	@Nullable
 	private InputHost inputHost;
 	@Nullable
+	private String dedicatedAddon;
+	@Nullable
 	private CarInputEditText activeInput;
 	private Cancellable scrollUp = Cancellable.CANCELED;
 	private long scrollDownTime;
@@ -66,8 +70,28 @@ public final class CarDisplay {
 		void stopInput(CarInputEditText et);
 	}
 
-	public void setInputHost(@Nullable InputHost inputHost) {
-		this.inputHost = inputHost;
+	/**
+	 * Binds the display to a car session, that receives the input requests.
+	 * <p>
+	 * Each of the full screen car apps has its own session, but the display is shared. If the
+	 * display shows the UI of another app, the UI is closed and recreated, when the new session
+	 * provides the surface.
+	 *
+	 * @param dedicatedAddon the class name of the addon, the UI is restricted to, or null
+	 */
+	public void attach(InputHost session, @Nullable String dedicatedAddon) {
+		if ((inputHost != session) || !Objects.equals(this.dedicatedAddon, dedicatedAddon)) close();
+		inputHost = session;
+		this.dedicatedAddon = dedicatedAddon;
+	}
+
+	/**
+	 * Closes the display, unless it has already been taken over by another session.
+	 */
+	public void detach(InputHost session) {
+		if (inputHost != session) return;
+		inputHost = null;
+		close();
 	}
 
 	public void setSurface(Surface surface, int width, int height, int dpi) {
@@ -90,7 +114,7 @@ public final class CarDisplay {
 		}
 
 		if (host == null) {
-			host = new CarDisplayHost(vd.getDisplay());
+			host = new CarDisplayHost(vd.getDisplay(), dedicatedAddon);
 			host.getWindow().getDecorView().post(() -> {
 				if (host != null) host.setContentInsets(insets);
 			});

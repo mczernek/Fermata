@@ -20,10 +20,13 @@ import androidx.appcompat.app.AppCompatActivity;
  * Debug only. Emulates the Android Auto surface, delivering the same events, as
  * {@link FullScreenCarService}: tap, scroll and fling, plus the Home and Back actions.
  * <p>
+ * The optional addon extra restricts the UI to the addon, like the dedicated car apps.
+ * <p>
  * adb shell am start -n <package>/me.aap.fermata.auto.CarDisplayPreviewActivity \
- * --ei w 1920 --ei h 720 --ei dpi 200
+ * --ei w 1920 --ei h 720 --ei dpi 200 [--es addon me.aap.fermata.addon.web.yt.YoutubeAddon]
  */
-public class CarDisplayPreviewActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class CarDisplayPreviewActivity extends AppCompatActivity
+		implements SurfaceHolder.Callback, CarDisplay.InputHost {
 	private int width;
 	private int height;
 	private int dpi;
@@ -36,6 +39,7 @@ public class CarDisplayPreviewActivity extends AppCompatActivity implements Surf
 		width = getIntent().getIntExtra("w", 1920);
 		height = getIntent().getIntExtra("h", 720);
 		dpi = getIntent().getIntExtra("dpi", 200);
+		CarDisplay.get().attach(this, getIntent().getStringExtra("addon"));
 
 		var root = new LinearLayout(this);
 		root.setOrientation(LinearLayout.VERTICAL);
@@ -108,8 +112,17 @@ public class CarDisplayPreviewActivity extends AppCompatActivity implements Surf
 
 	@Override
 	protected void onDestroy() {
-		CarDisplay.get().close();
+		CarDisplay.get().detach(this);
 		super.onDestroy();
+	}
+
+	@Override
+	public void startInput(CarInputEditText et) {
+		// The car keyboard is not available in the preview
+	}
+
+	@Override
+	public void stopInput(CarInputEditText et) {
 	}
 
 	@Override
