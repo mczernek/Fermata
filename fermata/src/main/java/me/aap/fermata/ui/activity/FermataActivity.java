@@ -16,11 +16,10 @@ public interface FermataActivity extends AppActivity {
 	boolean isCarActivity();
 
 	/**
-	 * The only top level fragment, this activity is dedicated to (e.g. YouTube), or 0 if the
-	 * activity is not restricted to a single fragment.
+	 * The fragment to show on start (e.g. YouTube), instead of the default one, or 0.
 	 */
 	@IdRes
-	default int getDedicatedFragmentId() {
+	default int getInitialFragmentId() {
 		return 0;
 	}
 

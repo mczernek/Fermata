@@ -116,7 +116,7 @@ public class YoutubeWebView extends FermataWebView {
 				"function attachVideoListeners(v) {\n" +
 				"  if (v.getAttribute('FermataAttached') === 'true') return;\n" +
 				"  v.setAttribute('FermataAttached', 'true');\n" +
-				"  v.setAttribute('style', 'object-fit:" + scale + "');\n" + debug +
+				"  " + setScaleJs("v", scale) + "\n" + debug +
 				"  if ((v.currentTime > 0) && !v.paused && !v.ended) " + JS_EVENT + "(" + JS_VIDEO_PLAYING +
 				", v.currentSrc);\n" +
 				"  v.addEventListener('playing', function(e) {" + JS_EVENT + "(" + JS_VIDEO_PLAYING +
@@ -362,8 +362,15 @@ public class YoutubeWebView extends FermataWebView {
 	void setScale(YoutubeAddon.VideoScale scale) {
 		getAddon().setScale(scale);
 		String p = scale.prefName();
-		loadUrl("javascript:" +
-				"document.querySelectorAll('video')" +
-				".forEach(v=> v.setAttribute('style', 'object-fit:" + p + "'));");
+		loadUrl("javascript:document.querySelectorAll('video').forEach(v=> " + setScaleJs("v", p) +
+				");");
+	}
+
+	/**
+	 * Keeps the inline styles of the player (size, position) and makes the scale override the
+	 * player's style sheets, that may stretch the video to the whole player.
+	 */
+	private static String setScaleJs(String video, String scale) {
+		return video + ".style.setProperty('object-fit', '" + scale + "', 'important');";
 	}
 }

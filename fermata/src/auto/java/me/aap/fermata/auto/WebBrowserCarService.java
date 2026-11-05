@@ -1,12 +1,12 @@
 package me.aap.fermata.auto;
 
 /**
- * A separate car app, showing the web browser only.
+ * A separate car app, opening the Fermata UI with the web browser.
  */
 public class WebBrowserCarService extends FullScreenCarService {
 
 	@Override
-	protected String getDedicatedAddon() {
+	protected String getInitialAddon() {
 		return "me.aap.fermata.addon.web.WebBrowserAddon";
 	}
 }

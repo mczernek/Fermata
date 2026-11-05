@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * Debug only. Emulates the Android Auto surface, delivering the same events, as
  * {@link FullScreenCarService}: tap, scroll and fling, plus the Home and Back actions.
  * <p>
- * The optional addon extra restricts the UI to the addon, like the dedicated car apps.
+ * The optional addon extra opens the addon on start, like the YouTube, TV, etc. car apps.
  * <p>
  * adb shell am start -n <package>/me.aap.fermata.auto.CarDisplayPreviewActivity \
  * --ei w 1920 --ei h 720 --ei dpi 200 [--es addon me.aap.fermata.addon.web.yt.YoutubeAddon]

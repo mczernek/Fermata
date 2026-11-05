@@ -15,8 +15,6 @@ import android.view.Surface;
 
 import androidx.annotation.Nullable;
 
-import java.util.Objects;
-
 import me.aap.fermata.FermataApplication;
 import me.aap.utils.function.Cancellable;
 import me.aap.utils.log.Log;
@@ -31,6 +29,7 @@ import me.aap.utils.log.Log;
  */
 public final class CarDisplay {
 	private static final long SCROLL_UP_DELAY = 300;
+	private static final float SPLIT_THRESHOLD = 0.85f;
 	private static CarDisplay instance;
 	private final Rect insets = new Rect();
 	@Nullable
@@ -44,7 +43,7 @@ public final class CarDisplay {
 	@Nullable
 	private InputHost inputHost;
 	@Nullable
-	private String dedicatedAddon;
+	private String initialAddon;
 	@Nullable
 	private CarInputEditText activeInput;
 	private Cancellable scrollUp = Cancellable.CANCELED;
@@ -73,16 +72,15 @@ public final class CarDisplay {
 	/**
 	 * Binds the display to a car session, that receives the input requests.
 	 * <p>
-	 * Each of the full screen car apps has its own session, but the display is shared. If the
-	 * display shows the UI of another app, the UI is closed and recreated, when the new session
-	 * provides the surface.
+	 * Each of the full screen car apps has its own session, but all of them share the same
+	 * display and UI. The apps only differ in the screen, shown when the app is opened.
 	 *
-	 * @param dedicatedAddon the class name of the addon, the UI is restricted to, or null
+	 * @param addon the class name of the addon to show, or null to keep the current screen
 	 */
-	public void attach(InputHost session, @Nullable String dedicatedAddon) {
-		if ((inputHost != session) || !Objects.equals(this.dedicatedAddon, dedicatedAddon)) close();
+	public void attach(InputHost session, @Nullable String addon) {
 		inputHost = session;
-		this.dedicatedAddon = dedicatedAddon;
+		if (host != null) host.showAddon(addon);
+		else initialAddon = addon;
 	}
 
 	/**
@@ -114,7 +112,7 @@ public final class CarDisplay {
 		}
 
 		if (host == null) {
-			host = new CarDisplayHost(vd.getDisplay(), dedicatedAddon);
+			host = new CarDisplayHost(vd.getDisplay(), initialAddon);
 			host.getWindow().getDecorView().post(() -> {
 				if (host != null) host.setContentInsets(insets);
 			});
@@ -129,12 +127,20 @@ public final class CarDisplay {
 
 	/**
 	 * The area of the surface, that is not covered by the car UI.
+	 * <p>
+	 * The action strips are small and shown over the content. Only the side panel of the split
+	 * screen, e.g. the media card, covers a significant part of the screen and the content is
+	 * moved out of it.
+	 *
+	 * @return true if a part of the screen is covered by the side panel
 	 */
-	public void setContentArea(Rect area) {
-		if ((width == 0) || (height == 0)) return;
-		insets.set(Math.max(0, area.left), Math.max(0, area.top), Math.max(0, width - area.right),
-				Math.max(0, height - area.bottom));
+	public boolean setContentArea(Rect area) {
+		if ((width == 0) || (height == 0)) return false;
+		boolean split = area.width() < width * SPLIT_THRESHOLD;
+		if (split) insets.set(Math.max(0, area.left), 0, Math.max(0, width - area.right), 0);
+		else insets.setEmpty();
 		if (host != null) host.setContentInsets(insets);
+		return split;
 	}
 
 	public void close() {

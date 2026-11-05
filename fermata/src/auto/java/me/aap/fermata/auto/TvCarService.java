@@ -1,12 +1,12 @@
 package me.aap.fermata.auto;
 
 /**
- * A separate car app, showing TV only.
+ * A separate car app, opening the Fermata UI with TV.
  */
 public class TvCarService extends FullScreenCarService {
 
 	@Override
-	protected String getDedicatedAddon() {
+	protected String getInitialAddon() {
 		return "me.aap.fermata.addon.tv.TvAddon";
 	}
 }

@@ -2,6 +2,7 @@ package me.aap.fermata.auto;
 
 import static androidx.core.graphics.drawable.IconCompat.createWithResource;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Rect;
 
@@ -38,15 +39,17 @@ import me.aap.utils.log.Log;
  * screen, navigation apps get a surface covering the whole screen. The UI is rendered to this
  * surface by {@link CarDisplay}.
  * <p>
- * Subclasses may restrict the UI to a single addon, to be shown as a separate car app.
+ * Subclasses are shown as separate car apps, opening the same UI with another initial screen,
+ * e.g. YouTube.
  */
 public class FullScreenCarService extends CarAppService {
 
 	/**
-	 * The class name of the addon, the UI is restricted to, or null to show the whole UI.
+	 * The class name of the addon to show, when the app is opened, or null to keep the current
+	 * screen.
 	 */
 	@Nullable
-	protected String getDedicatedAddon() {
+	protected String getInitialAddon() {
 		return null;
 	}
 
@@ -59,29 +62,37 @@ public class FullScreenCarService extends CarAppService {
 	@NonNull
 	@Override
 	public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
-		return new FullScreenSession(getDedicatedAddon());
+		return new FullScreenSession(new ComponentName(this, getClass()), getInitialAddon());
 	}
 
 	private static final class FullScreenSession extends Session
 			implements CarDisplay.InputHost, DefaultLifecycleObserver {
+		private final ComponentName service;
 		@Nullable
-		private final String dedicatedAddon;
+		private final String initialAddon;
 
-		FullScreenSession(@Nullable String dedicatedAddon) {
-			this.dedicatedAddon = dedicatedAddon;
+		FullScreenSession(ComponentName service, @Nullable String initialAddon) {
+			this.service = service;
+			this.initialAddon = initialAddon;
 			getLifecycle().addObserver(this);
 		}
 
 		@NonNull
 		@Override
 		public Screen onCreateScreen(@NonNull Intent intent) {
-			CarDisplay.get().attach(this, dedicatedAddon);
-			return new DisplayScreen(getCarContext());
+			CarDisplay.get().attach(this, initialAddon);
+			return new DisplayScreen(getCarContext(), service);
+		}
+
+		@Override
+		public void onNewIntent(@NonNull Intent intent) {
+			// The app is opened again, e.g. from the app list
+			CarDisplay.get().attach(this, initialAddon);
 		}
 
 		@Override
 		public void onDestroy(@NonNull LifecycleOwner owner) {
-			Log.i("Full screen session destroyed: ", dedicatedAddon);
+			Log.i("Full screen session destroyed: ", initialAddon);
 			CarDisplay.get().detach(this);
 		}
 
@@ -100,9 +111,12 @@ public class FullScreenCarService extends CarAppService {
 
 	private static final class DisplayScreen extends Screen implements SurfaceCallback {
 		private final CarDisplay display = CarDisplay.get();
+		private final ComponentName service;
+		private boolean split;
 
-		DisplayScreen(@NonNull CarContext ctx) {
+		DisplayScreen(@NonNull CarContext ctx, ComponentName service) {
 			super(ctx);
+			this.service = service;
 			ctx.getCarService(AppManager.class).setSurfaceCallback(this);
 			Log.i("Full screen created. API level: ", ctx.getCarAppApiLevel());
 		}
@@ -122,7 +136,22 @@ public class FullScreenCarService extends CarAppService {
 		@Override
 		public void onStableAreaChanged(@NonNull Rect stableArea) {
 			Log.d("Stable area changed: ", stableArea);
-			display.setContentArea(stableArea);
+			boolean split = display.setContentArea(stableArea);
+			if (this.split == split) return;
+			this.split = split;
+			invalidate();
+		}
+
+		/**
+		 * Starting the app, that is already shown in the split screen, brings it back to the full
+		 * screen.
+		 */
+		private void fullScreen() {
+			try {
+				getCarContext().startCarApp(new Intent(Intent.ACTION_MAIN).setComponent(service));
+			} catch (Exception err) {
+				Log.e(err, "Failed to switch to the full screen");
+			}
 		}
 
 		@Override
@@ -144,10 +173,11 @@ public class FullScreenCarService extends CarAppService {
 		@Override
 		public Template onGetTemplate() {
 			var ctx = getCarContext();
-			return new NavigationTemplate.Builder()
-					.setActionStrip(new ActionStrip.Builder()
-							.addAction(action(ctx, R.drawable.home, display::home))
-							.addAction(action(ctx, R.drawable.back, display::back)).build())
+			var actions = new ActionStrip.Builder();
+			if (split) actions.addAction(action(ctx, R.drawable.car_fullscreen, this::fullScreen));
+			actions.addAction(action(ctx, R.drawable.home, display::home))
+					.addAction(action(ctx, R.drawable.back, display::back));
+			return new NavigationTemplate.Builder().setActionStrip(actions.build())
 					// Scroll events are only delivered to apps, supporting the pan mode
 					.setMapActionStrip(new ActionStrip.Builder().addAction(Action.PAN).build())
 					.build();

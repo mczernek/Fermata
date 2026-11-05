@@ -65,13 +65,13 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 	@Nullable
 	private CarInputEditText input;
 	@IdRes
-	private int dedicatedFragmentId;
+	private int initialFragmentId;
 	private boolean destroyed;
 
 	/**
-	 * @param dedicatedAddon the class name of the addon, the UI is restricted to, or null
+	 * @param initialAddon the class name of the addon to show on start, or null
 	 */
-	CarDisplayHost(Display display, @Nullable String dedicatedAddon) {
+	CarDisplayHost(Display display, @Nullable String initialAddon) {
 		super(MainActivityDelegate.attachBaseContext(
 				FermataApplication.get().createDisplayContext(display)), 0);
 		MainActivityDelegate.setTheme(this, true);
@@ -100,14 +100,14 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 
 		fragments.dispatchCreate();
 		// Completes immediately, if the service is connected and the addon is loaded
-		delegate = getDedicatedFragmentId(dedicatedAddon).then(id -> {
-			dedicatedFragmentId = id;
+		delegate = getFragmentId(initialAddon).then(id -> {
+			initialFragmentId = id;
 			return connect();
 		}).main().map(this::onCreate)
 				.onFailure(err -> Log.e(err, "Failed to create the car display UI"));
 	}
 
-	private static FutureSupplier<Integer> getDedicatedFragmentId(@Nullable String addon) {
+	private static FutureSupplier<Integer> getFragmentId(@Nullable String addon) {
 		if (addon == null) return completed(ID_NULL);
 		// Re-enables the addon, if it has been disabled in the settings
 		return AddonManager.get().getOrInstallAddon(addon).main()
@@ -164,6 +164,20 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 		if (content != null) content.setPadding(insets.left, insets.top, insets.right, insets.bottom);
 	}
 
+	/**
+	 * @param addon the class name of the addon to show, or null to keep the current screen
+	 */
+	void showAddon(@Nullable String addon) {
+		if (addon == null) return;
+		getFragmentId(addon).main().onCompletion((id, err) -> {
+			if (err != null) Log.e(err, "Failed to show addon ", addon);
+			else if (!destroyed) delegate.onSuccess(d -> {
+				d.hideActiveMenu();
+				d.showFragment(id);
+			});
+		});
+	}
+
 	void home() {
 		delegate.onSuccess(d -> {
 			if (d.hideActiveMenu()) return;
@@ -188,8 +202,8 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 	}
 
 	@Override
-	public int getDedicatedFragmentId() {
-		return dedicatedFragmentId;
+	public int getInitialFragmentId() {
+		return initialFragmentId;
 	}
 
 	@Override
