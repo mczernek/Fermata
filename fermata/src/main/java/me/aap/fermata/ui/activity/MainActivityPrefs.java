@@ -78,6 +78,7 @@ public interface MainActivityPrefs
 	Pref<DoubleSupplier> CONTROL_PANEL_SIZE_AA = AUTO ? Pref.f("CONTROL_PANEL_SIZE_AA", 1f) : null;
 	Pref<DoubleSupplier> TEXT_ICON_SIZE_AA = AUTO ? Pref.f("TEXT_ICON_SIZE_AA", 1f) : null;
 	Pref<BooleanSupplier> GRID_VIEW_AA = AUTO ? Pref.b("GRID_VIEW_AA", false) : null;
+	Pref<BooleanSupplier> CAR_HOME_AA = AUTO ? Pref.b("CAR_HOME_AA", true) : null;
 
 	static MainActivityPrefs get() {
 		return MainActivityDelegate.Prefs.instance;
@@ -133,6 +134,10 @@ public interface MainActivityPrefs
 	default boolean getShowPgUpDownPref(MainActivityDelegate a) {
 		if (AUTO && a.isCarActivity()) return getBooleanPref(SHOW_PG_UP_DOWN_AA);
 		return getBooleanPref(SHOW_PG_UP_DOWN);
+	}
+
+	default boolean getCarHomePref(MainActivityDelegate a) {
+		return AUTO && a.isCarActivity() && getBooleanPref(CAR_HOME_AA);
 	}
 
 	default boolean useDpadCursor(MainActivityDelegate a) {

@@ -29,6 +29,7 @@ public class FloatingButtonMediator implements BackMenu {
 	public int getIcon(FloatingButton fb) {
 		MainActivityDelegate a = MainActivityDelegate.get(fb.getContext());
 		if (a.isVideoMode() || !a.isRootPage()) return getBackIcon();
+		if (canGoHome(a)) return R.drawable.car_home;
 		if (isAddFolderEnabled(a.getActiveFragment())) return R.drawable.add_folder;
 		return getMenuIcon();
 	}
@@ -39,6 +40,8 @@ public class FloatingButtonMediator implements BackMenu {
 
 		if (a.isVideoMode() || !a.isRootPage()) {
 			a.onBackPressed();
+		} else if (canGoHome(a)) {
+			a.showHome();
 		} else {
 			ActivityFragment f = a.getActiveFragment();
 			if (isAddFolderEnabled(f)) ((FoldersFragment) f).addFolder();
@@ -51,6 +54,10 @@ public class FloatingButtonMediator implements BackMenu {
 		MainActivityDelegate a = MainActivityDelegate.get(v.getContext());
 		if (a.getPrefs().getVoiceControlFBPref()) {
 			a.startVoiceAssistant();
+			return true;
+		}
+		if (canGoHome(a)) {
+			a.showHome();
 			return true;
 		}
 		ActivityFragment f = a.getActiveFragment();
@@ -77,6 +84,10 @@ public class FloatingButtonMediator implements BackMenu {
 		}
 
 		return null;
+	}
+
+	private static boolean canGoHome(MainActivityDelegate a) {
+		return a.isCarHome() && !a.isHomeActive();
 	}
 
 	private boolean isAddFolderEnabled(ActivityFragment f) {

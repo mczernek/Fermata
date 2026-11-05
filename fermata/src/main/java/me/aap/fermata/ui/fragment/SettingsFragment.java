@@ -676,6 +676,12 @@ public class SettingsFragment extends MainActivityFragment
 					MainActivityPrefs.USE_DPAD_CURSOR, MainActivityPrefs.NAV_BAR_POS_AA,
 					MainActivityPrefs.NAV_BAR_SIZE_AA, MainActivityPrefs.TOOL_BAR_SIZE_AA,
 					MainActivityPrefs.CONTROL_PANEL_SIZE_AA, MainActivityPrefs.TEXT_ICON_SIZE_AA);
+			ps.addBooleanPref(o -> {
+				o.store = a.getPrefs();
+				o.pref = MainActivityPrefs.CAR_HOME_AA;
+				o.title = R.string.car_home_pref;
+				o.subtitle = R.string.car_home_pref_sub;
+			});
 		}
 	}
 

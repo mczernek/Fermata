@@ -112,6 +112,7 @@ import me.aap.fermata.media.service.FermataServiceUiBinder;
 import me.aap.fermata.media.service.MediaSessionCallback;
 import me.aap.fermata.media.service.MediaSessionCallbackAssistant;
 import me.aap.fermata.ui.fragment.AudioEffectsFragment;
+import me.aap.fermata.ui.fragment.CarHomeFragment;
 import me.aap.fermata.ui.fragment.FavoritesFragment;
 import me.aap.fermata.ui.fragment.FoldersFragment;
 import me.aap.fermata.ui.fragment.MainActivityFragment;
@@ -344,6 +345,12 @@ public class MainActivityDelegate extends ActivityDelegate
 			}
 		}
 
+		if (isCarHome()) {
+			showHome();
+			checkUpdates();
+			return;
+		}
+
 		FutureSupplier<Boolean> f = goToCurrent().onCompletion((ok, fail1) -> {
 			if ((fail1 != null) && !isCancellation(fail1)) {
 				Log.e(fail1, "Last played track not found");
@@ -449,6 +456,21 @@ public class MainActivityDelegate extends ActivityDelegate
 
 	public boolean isCarActivityNotMirror() {
 		return isCarActivity();
+	}
+
+	/**
+	 * In the car, the navigation bar is replaced by a home screen with large tiles.
+	 */
+	public boolean isCarHome() {
+		return getPrefs().getCarHomePref(this);
+	}
+
+	public boolean isHomeActive() {
+		return getActiveFragmentId() == R.id.car_home_fragment;
+	}
+
+	public void showHome() {
+		showFragment(R.id.car_home_fragment);
 	}
 
 	@NonNull
@@ -589,7 +611,7 @@ public class MainActivityDelegate extends ActivityDelegate
 			int visibility = barsHidden ? GONE : VISIBLE;
 			ToolBarView tb = getToolBar();
 			if (tb.getMediator() != ToolBarView.Mediator.Invisible.instance) tb.setVisibility(visibility);
-			getNavBar().setVisibility(visibility);
+			if (!isCarHome()) getNavBar().setVisibility(visibility);
 		});
 	}
 
@@ -705,7 +727,15 @@ public class MainActivityDelegate extends ActivityDelegate
 	public ActivityFragment showFragment(int id, Object input) {
 		BodyLayout b = getBody();
 		if (b.isVideoMode()) b.setMode(BodyLayout.Mode.BOTH);
+		// The nav bar is hidden, thus it does not track the top level fragments
+		if (isCarHome() && isTopLevelFragment(id)) setActiveNavItemId(id);
 		return super.showFragment(id, input);
+	}
+
+	private static boolean isTopLevelFragment(int id) {
+		return (id == R.id.car_home_fragment) || (id == R.id.folders_fragment) ||
+				(id == R.id.favorites_fragment) || (id == R.id.playlists_fragment) ||
+				AddonManager.get().hasAddon(id);
 	}
 
 	protected ActivityFragment createFragment(int id) {
@@ -721,6 +751,8 @@ public class MainActivityDelegate extends ActivityDelegate
 			return new AudioEffectsFragment();
 		} else if (id == R.id.subtitles_fragment) {
 			return new SubtitlesFragment();
+		} else if (id == R.id.car_home_fragment) {
+			return new CarHomeFragment();
 		}
 		ActivityFragment f = FermataApplication.get().getAddonManager().createFragment(id);
 		return (f != null) ? f : super.createFragment(id);
@@ -800,6 +832,10 @@ public class MainActivityDelegate extends ActivityDelegate
 
 	@Override
 	protected boolean exitOnBackPressed() {
+		if (isCarHome() && !isHomeActive()) {
+			showHome();
+			return false;
+		}
 		return !isCarActivityNotMirror();
 	}
 
@@ -997,6 +1033,7 @@ public class MainActivityDelegate extends ActivityDelegate
 		floatingButton = a.findViewById(R.id.floating_button);
 		floatingButton.setScale(getPrefs().getTextIconSizePref(this));
 		controlPanel.bind(getMediaServiceBinder());
+		if (isCarHome()) navBar.setVisibility(GONE);
 
 		if (VERSION.SDK_INT >= VERSION_CODES.VANILLA_ICE_CREAM && !a.isCarActivity()) {
 			ViewCompat.setOnApplyWindowInsetsListener(toolBar, (v, insets) -> {
@@ -1046,6 +1083,8 @@ public class MainActivityDelegate extends ActivityDelegate
 			recreate();
 		} else if (MainActivityPrefs.hasNavBarPosPref(this, prefs)) {
 			recreate();
+		} else if (AUTO && prefs.contains(MainActivityPrefs.CAR_HOME_AA)) {
+			if (navBar != null) navBar.setVisibility(isCarHome() ? GONE : VISIBLE);
 		} else if (MainActivityPrefs.hasTextIconSizePref(this, prefs)) {
 			if (floatingButton != null) floatingButton.setScale(getPrefs().getTextIconSizePref(this));
 		} else if (MainActivityPrefs.hasNavBarSizePref(this, prefs)) {

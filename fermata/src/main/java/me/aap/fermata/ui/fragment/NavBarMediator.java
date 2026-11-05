@@ -255,31 +255,12 @@ public class NavBarMediator extends PrefNavBarMediator
 			MainActivityDelegate.get(item.getContext()).goToCurrent();
 			return true;
 		} else if (itemId == R.id.nav_about) {
-			MainActivityDelegate a = MainActivityDelegate.get(item.getContext());
-			if (!(a.showFragment(me.aap.utils.R.id.generic_fragment) instanceof GenericFragment f))
-				return false;
-			f.setTitle(item.getContext().getString(R.string.about));
-			f.setContentProvider(g -> {
-				Context ctx = g.getContext();
-				ScalableTextView v = new ScalableTextView(ctx);
-				String url = "https://github.com/AndreyPavlenko/Fermata";
-				String html = ctx.getString(R.string.about_html, VERSION_NAME, VERSION_CODE, url);
-				int pad = UiUtils.toIntPx(ctx, 10);
-				v.setPadding(pad, pad, pad, pad);
-				v.setText(HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY));
-				v.setOnClickListener(t -> openUrl(t.getContext(), url));
-				g.addView(v);
-			});
-			return true;
+			return showAbout(MainActivityDelegate.get(item.getContext()));
 		} else if (itemId == R.id.settings_fragment) {
 			MainActivityDelegate.get(item.getContext()).showFragment(R.id.settings_fragment);
 			return true;
 		} else if (itemId == R.id.nav_exit) {
-			MainActivityDelegate a = MainActivityDelegate.get(item.getContext());
-			a.finish();
-			if (a.isCarActivityNotMirror()) {
-				a.getHandler().postDelayed(() -> System.exit(0), 500);
-			}
+			exit(MainActivityDelegate.get(item.getContext()));
 			return true;
 		}
 		MainActivityDelegate a;
@@ -310,6 +291,31 @@ public class NavBarMediator extends PrefNavBarMediator
 		}
 
 		return false;
+	}
+
+	public static boolean showAbout(MainActivityDelegate a) {
+		if (!(a.showFragment(me.aap.utils.R.id.generic_fragment) instanceof GenericFragment f))
+			return false;
+		f.setTitle(a.getContext().getString(R.string.about));
+		f.setContentProvider(g -> {
+			Context ctx = g.getContext();
+			ScalableTextView v = new ScalableTextView(ctx);
+			String url = "https://github.com/AndreyPavlenko/Fermata";
+			String html = ctx.getString(R.string.about_html, VERSION_NAME, VERSION_CODE, url);
+			int pad = UiUtils.toIntPx(ctx, 10);
+			v.setPadding(pad, pad, pad, pad);
+			v.setText(HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY));
+			v.setOnClickListener(t -> openUrl(t.getContext(), url));
+			g.addView(v);
+		});
+		return true;
+	}
+
+	public static void exit(MainActivityDelegate a) {
+		a.finish();
+		if (a.isCarActivityNotMirror()) {
+			a.getHandler().postDelayed(() -> System.exit(0), 500);
+		}
 	}
 
 	private static void openUrl(Context ctx, String url) {

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="car_home_fragment" type="id" />
+
+    <string name="car_home">Home</string>
+    <string name="car_home_pref">Home screen with tiles</string>
+    <string name="car_home_pref_sub">Replace the navigation bar with a home screen of large tiles. The floating button goes back, a long press goes home</string>
+    <string name="now_playing">Now playing</string>
+    <string name="voice_assistant">Voice</string>
+</resources>

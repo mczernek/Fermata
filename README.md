@@ -1,3 +1,62 @@
+## This fork (mczernek)
+Personal build of Fermata for Android Auto, published to Google Play (internal testing track) as
+`me.aap.fermata.mczernek.auto`. Fork-only changes live on the `mczernek` branch, rebased on top of
+upstream `master`. The `master` branch is kept identical to upstream.
+
+### Setting up a new machine
+1. Install Android Studio (or the SDK command line tools) and JDK 17. In the SDK manager install
+   **NDK 29.0.14206865** and **CMake 4.1.2** (the versions are defined in `gradle/libs.versions.toml`
+   and `modules/whisper/build.gradle`).
+2. Clone the fork and point the remotes at the fork and at upstream:
+   ```bash
+   git clone -b mczernek https://github.com/mczernek/Fermata.git
+   cd Fermata
+   git remote rename origin fork
+   git remote add origin https://github.com/AndreyPavlenko/Fermata.git
+   git fetch origin
+   git branch --set-upstream-to=fork/mczernek mczernek
+   git branch master origin/master   # master tracks upstream master
+   ```
+3. Copy the Google Play **upload key** from a safe place (password manager, encrypted backup -
+   never commit it) to e.g. `~/Private/keys/Fermata/fermata.jks`. Its certificate is
+   `CN=Michal Czernek`, SHA1 `E4:42:DC:BF:B1:AF:56:77:27:59:59:7F:1D:6D:E6:21:AB:2F:90:6C`.
+4. Create `local.properties` in the project root (it's git-ignored):
+   ```properties
+   sdk.dir=/path/to/Android/sdk
+   storeFile=/absolute/path/to/fermata.jks
+   storePassword=...
+   keyAlias=fermata
+   keyPassword=...
+   ```
+   Do this **before** the first Gradle run. If `storeFile` is missing or doesn't point to an
+   existing file, `settings.gradle` generates a new `res/fermata.jks` (`CN=Fermata`) and rewrites
+   `local.properties` to use it - Google Play rejects bundles signed with that key.
+
+### Building a release for Google Play
+1. Bump `appVersionCode` (and `appVersionName` if needed) in `gradle/libs.versions.toml` - Play
+   requires a new, higher version code for every upload.
+2. Build the bundle. On macOS the native whisper build needs `ninja` from the SDK CMake on `PATH`:
+   ```bash
+   export PATH="$ANDROID_SDK_ROOT/cmake/4.1.2/bin:$PATH"
+   ./gradlew bundleAutoRelease
+   ```
+   The bundle is `fermata/build/outputs/bundle/autoRelease/fermata-<version>-auto-release.aab`.
+3. Check it's signed with the upload key (the SHA1 must match the one above):
+   ```bash
+   keytool -printcert -jarfile fermata/build/outputs/bundle/autoRelease/*.aab
+   ```
+4. Upload it in Play Console -> Fermata -> Testing -> Internal testing -> Create new release.
+
+If the upload key is ever lost, it can be replaced in Play Console (Setup -> App signing ->
+Request upload key reset); the app signing key itself is managed by Google.
+
+### Fork changes
+* Own application id (`APP_ID` in `build.gradle`), no `automotive` feature requirement, and fixes
+  for content providers of on-demand feature modules, that crash Play installs.
+* Car home screen with large tiles instead of the bottom navigation bar (Settings -> Interface ->
+  Android Auto -> Home screen with tiles).
+* "Fermata Full Screen" Android Auto app, showing the Fermata UI on the whole car screen.
+
 ## !!!Be aware of scam!!! The sites like https :// fermata-auto . com  are 100% scam. This app is free and opensource!
 
 

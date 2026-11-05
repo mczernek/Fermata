@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- Debug only: renders the CarDisplay to a phone window, emulating the car surface -->
+        <activity
+            android:name="me.aap.fermata.auto.CarDisplayPreviewActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+    </application>
+</manifest>
