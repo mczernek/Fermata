@@ -2,7 +2,6 @@ package me.aap.fermata.auto;
 
 import static androidx.core.graphics.drawable.IconCompat.createWithResource;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Rect;
 
@@ -62,17 +61,15 @@ public class FullScreenCarService extends CarAppService {
 	@NonNull
 	@Override
 	public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
-		return new FullScreenSession(new ComponentName(this, getClass()), getInitialAddon());
+		return new FullScreenSession(getInitialAddon());
 	}
 
 	private static final class FullScreenSession extends Session
 			implements CarDisplay.InputHost, DefaultLifecycleObserver {
-		private final ComponentName service;
 		@Nullable
 		private final String initialAddon;
 
-		FullScreenSession(ComponentName service, @Nullable String initialAddon) {
-			this.service = service;
+		FullScreenSession(@Nullable String initialAddon) {
 			this.initialAddon = initialAddon;
 			getLifecycle().addObserver(this);
 		}
@@ -81,7 +78,7 @@ public class FullScreenCarService extends CarAppService {
 		@Override
 		public Screen onCreateScreen(@NonNull Intent intent) {
 			CarDisplay.get().attach(this, initialAddon);
-			return new DisplayScreen(getCarContext(), service);
+			return new DisplayScreen(getCarContext());
 		}
 
 		@Override
@@ -111,12 +108,9 @@ public class FullScreenCarService extends CarAppService {
 
 	private static final class DisplayScreen extends Screen implements SurfaceCallback {
 		private final CarDisplay display = CarDisplay.get();
-		private final ComponentName service;
-		private boolean split;
 
-		DisplayScreen(@NonNull CarContext ctx, ComponentName service) {
+		DisplayScreen(@NonNull CarContext ctx) {
 			super(ctx);
-			this.service = service;
 			ctx.getCarService(AppManager.class).setSurfaceCallback(this);
 			Log.i("Full screen created. API level: ", ctx.getCarAppApiLevel());
 		}
@@ -136,22 +130,7 @@ public class FullScreenCarService extends CarAppService {
 		@Override
 		public void onStableAreaChanged(@NonNull Rect stableArea) {
 			Log.d("Stable area changed: ", stableArea);
-			boolean split = display.setContentArea(stableArea);
-			if (this.split == split) return;
-			this.split = split;
-			invalidate();
-		}
-
-		/**
-		 * Starting the app, that is already shown in the split screen, brings it back to the full
-		 * screen.
-		 */
-		private void fullScreen() {
-			try {
-				getCarContext().startCarApp(new Intent(Intent.ACTION_MAIN).setComponent(service));
-			} catch (Exception err) {
-				Log.e(err, "Failed to switch to the full screen");
-			}
+			display.setContentArea(stableArea);
 		}
 
 		@Override
@@ -173,11 +152,10 @@ public class FullScreenCarService extends CarAppService {
 		@Override
 		public Template onGetTemplate() {
 			var ctx = getCarContext();
-			var actions = new ActionStrip.Builder();
-			if (split) actions.addAction(action(ctx, R.drawable.car_fullscreen, this::fullScreen));
-			actions.addAction(action(ctx, R.drawable.home, display::home))
-					.addAction(action(ctx, R.drawable.back, display::back));
-			return new NavigationTemplate.Builder().setActionStrip(actions.build())
+			return new NavigationTemplate.Builder()
+					.setActionStrip(new ActionStrip.Builder()
+							.addAction(action(ctx, R.drawable.home, display::home))
+							.addAction(action(ctx, R.drawable.back, display::back)).build())
 					// Scroll events are only delivered to apps, supporting the pan mode
 					.setMapActionStrip(new ActionStrip.Builder().addAction(Action.PAN).build())
 					.build();

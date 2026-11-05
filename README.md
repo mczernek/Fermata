@@ -62,8 +62,9 @@ Request upload key reset); the app signing key itself is managed by Google.
   developer settings to list them.
 * "Youtube", "Web browser" and "TV" Android Auto apps - the same full screen UI, opened on another
   initial screen (`YoutubeCarService`, `WebBrowserCarService`, `TvCarService`). All of them share
-  one UI, so switching between them keeps the state. The car action strip is shown over the
-  content and has a full screen button, while the app is shown in the split screen. The `web` and `tv`
+  one UI, so switching between them keeps the state. Home always opens the home screen with tiles.
+  The car action strip is shown over the content. In the split screen, tap the app icon in the
+  Android Auto rail to get back to the full screen. The `web` and `tv`
   modules are delivered at install time, so they are always available.
 * Default TV channels: free, official streams in `modules/tv/src/main/res/raw/tv_*.m3u`, each
   added once as a TV source ("Polska", "World News", "Sport & Music"). The local copies are

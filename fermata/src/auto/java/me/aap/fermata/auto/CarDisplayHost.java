@@ -202,6 +202,11 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 	}
 
 	@Override
+	public boolean isCarHomeRequired() {
+		return true;
+	}
+
+	@Override
 	public int getInitialFragmentId() {
 		return initialFragmentId;
 	}

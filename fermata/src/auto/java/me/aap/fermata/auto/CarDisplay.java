@@ -131,16 +131,13 @@ public final class CarDisplay {
 	 * The action strips are small and shown over the content. Only the side panel of the split
 	 * screen, e.g. the media card, covers a significant part of the screen and the content is
 	 * moved out of it.
-	 *
-	 * @return true if a part of the screen is covered by the side panel
 	 */
-	public boolean setContentArea(Rect area) {
-		if ((width == 0) || (height == 0)) return false;
+	public void setContentArea(Rect area) {
+		if ((width == 0) || (height == 0)) return;
 		boolean split = area.width() < width * SPLIT_THRESHOLD;
 		if (split) insets.set(Math.max(0, area.left), 0, Math.max(0, width - area.right), 0);
 		else insets.setEmpty();
 		if (host != null) host.setContentInsets(insets);
-		return split;
 	}
 
 	public void close() {

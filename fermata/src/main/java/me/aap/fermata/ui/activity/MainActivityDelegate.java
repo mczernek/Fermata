@@ -468,7 +468,7 @@ public class MainActivityDelegate extends ActivityDelegate
 	 * In the car, the navigation bar is replaced by a home screen with large tiles.
 	 */
 	public boolean isCarHome() {
-		return getPrefs().getCarHomePref(this);
+		return getAppActivity().isCarHomeRequired() || getPrefs().getCarHomePref(this);
 	}
 
 	public boolean isHomeActive() {

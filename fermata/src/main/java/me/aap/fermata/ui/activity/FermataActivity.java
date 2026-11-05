@@ -23,6 +23,14 @@ public interface FermataActivity extends AppActivity {
 		return 0;
 	}
 
+	/**
+	 * The home screen with tiles is always used, regardless of the preference. E.g. the full screen
+	 * car apps have no navigation bar, so the home screen is the only way to all the options.
+	 */
+	default boolean isCarHomeRequired() {
+		return false;
+	}
+
 	void setRequestedOrientation(int requestedOrientation);
 
 	@Nullable
