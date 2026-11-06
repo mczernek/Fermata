@@ -214,6 +214,9 @@
     <string name="search">Търсене</string>
     <string name="filter">Филтър</string>
     <string name="settings">Настройки</string>
+    <string name="nav_panel_home">Начало</string>
+    <string name="nav_panel_back">Назад</string>
+    <string name="nav_panel_move">Преместване на панела</string>
     <string name="menu">Меню</string>
     <string name="exit">Изход</string>
     <string name="restart">Рестартиране</string>

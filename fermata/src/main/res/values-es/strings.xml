@@ -214,6 +214,9 @@ Apagado: pausa</string>
     <string name="search">Buscar</string>
     <string name="filter">Filtro</string>
     <string name="settings">Configuración</string>
+    <string name="nav_panel_home">Inicio</string>
+    <string name="nav_panel_back">Atrás</string>
+    <string name="nav_panel_move">Mover panel</string>
     <string name="menu">Menú</string>
     <string name="exit">Salida</string>
     <string name="cancel">Cancelar</string>

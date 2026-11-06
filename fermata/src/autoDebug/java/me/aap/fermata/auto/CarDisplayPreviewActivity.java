@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Debug only. Emulates the Android Auto surface, delivering the same events, as
- * {@link FullScreenCarService}: tap, scroll and fling, plus the Home and Back actions.
+ * {@link FullScreenCarService}: tap, scroll and fling, plus the Menu action.
  * <p>
  * The optional addon extra opens the addon on start, like the YouTube, TV, etc. car apps.
  * <p>
@@ -44,16 +44,10 @@ public class CarDisplayPreviewActivity extends AppCompatActivity
 		var root = new LinearLayout(this);
 		root.setOrientation(LinearLayout.VERTICAL);
 		root.setBackgroundColor(Color.DKGRAY);
-		var buttons = new LinearLayout(this);
-		var home = new Button(this);
-		home.setText("Home");
-		home.setOnClickListener(v -> CarDisplay.get().home());
-		var back = new Button(this);
-		back.setText("Back");
-		back.setOnClickListener(v -> CarDisplay.get().back());
-		buttons.addView(home);
-		buttons.addView(back);
-		root.addView(buttons);
+		var menu = new Button(this);
+		menu.setText("Menu");
+		menu.setOnClickListener(v -> CarDisplay.get().menu());
+		root.addView(menu, new LinearLayout.LayoutParams(-2, -2));
 
 		var frame = new FrameLayout(this);
 		view = new SurfaceView(this);

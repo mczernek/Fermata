@@ -153,14 +153,6 @@ public final class CarDisplay {
 		activeInput = null;
 	}
 
-	public void home() {
-		if (host != null) host.home();
-	}
-
-	public void back() {
-		if (host != null) host.back();
-	}
-
 	public void menu() {
 		if (host != null) host.menu();
 	}

@@ -31,6 +31,14 @@ public interface FermataActivity extends AppActivity {
 		return false;
 	}
 
+	/**
+	 * Whether the touch position of the drag events is delivered. It's not in the full screen car
+	 * apps, that only receive the scroll distances.
+	 */
+	default boolean isTouchDragSupported() {
+		return true;
+	}
+
 	void setRequestedOrientation(int requestedOrientation);
 
 	@Nullable

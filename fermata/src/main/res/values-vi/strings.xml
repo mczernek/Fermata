@@ -206,6 +206,9 @@
     <string name="search">Tìm kiếm</string>
     <string name="filter">Lọc</string>
     <string name="settings">Cài đặt</string>
+    <string name="nav_panel_home">Trang chủ</string>
+    <string name="nav_panel_back">Quay lại</string>
+    <string name="nav_panel_move">Di chuyển bảng</string>
     <string name="menu">Menu</string>
     <string name="exit">Thoát</string>
     <string name="cancel">Hủy bỏ</string>

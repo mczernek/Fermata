@@ -213,6 +213,9 @@
     <string name="search">搜尋</string>
     <string name="filter">過濾</string>
     <string name="settings">設定</string>
+    <string name="nav_panel_home">首頁</string>
+    <string name="nav_panel_back">返回</string>
+    <string name="nav_panel_move">移動面板</string>
     <string name="menu">功能</string>
     <string name="exit">關閉</string>
     <string name="cancel">取消</string>

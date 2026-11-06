@@ -64,16 +64,21 @@ Request upload key reset); the app signing key itself is managed by Google.
   apps - the same full screen UI, opened on another initial screen (`YoutubeCarService`,
   `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
   get the whole screen. All of them share one UI, so switching between them keeps the state. Home
-  always opens the home screen with tiles. The car action strip (Home, Back, Menu) is shown over
-  the content. In the split screen, tap the app icon in the Android Auto rail to get back to the
+  always opens the home screen with tiles. Android Auto requires an action strip, so it only has
+  Menu (and Pan, for scrolling). In the split screen, tap the app icon in the Android Auto rail to get back to the
   full screen. The `web` and `tv` modules are delivered at install time, so they are always
   available.
 * "Youtube" and "TV" Android Auto apps - the regular, projection based versions (not
   navigation apps), shown in the split screen like Fermata itself (`YoutubeCarActivityService`,
   `TvCarActivityService`, `MainCarActivity.getInitialAddon()`).
-* No floating button in the car. Its actions are on the car action strip of the full screen apps
-  and on the Home/Back/Menu overlay of the projection based apps (`CarNavOverlay`), that stays
-  visible in the video players too. TV: "Add M3U IPTV source" moved to the menu.
+* No floating button. Its actions are on the navigation panel (`NavPanel`) - Home, Back and Menu
+  in one panel, the same on the phone, in the projection based and in the full screen car apps,
+  including the video players. It is shown, when the screen is touched, and hidden after 5 seconds
+  of inactivity. Drag it to move it, it sticks to the nearest corner of the content area (the
+  position is remembered, separately for the phone and the car). The full screen car apps don't
+  get the touch position of a drag, so the panel has a move button there: tap it, then tap the
+  screen near the target corner. Long click on Menu starts the voice assistant, if "Voice control
+  with the floating button" is enabled. TV: "Add M3U IPTV source" moved to the menu.
 * YouTube: the automatic full screen on playback clicks the player's own full screen button
   (falls back to the full screen of the player, not the video element, which broke the aspect
   ratio). It can be disabled: YouTube settings -> Open videos in full screen.

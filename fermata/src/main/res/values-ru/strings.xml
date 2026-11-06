@@ -206,6 +206,9 @@
     <string name="search">Поиск</string>
     <string name="filter">Фильтр</string>
     <string name="settings">Настройки</string>
+    <string name="nav_panel_home">Домой</string>
+    <string name="nav_panel_back">Назад</string>
+    <string name="nav_panel_move">Переместить панель</string>
     <string name="menu">Меню</string>
     <string name="exit">Выход</string>
     <string name="cancel">Отменить</string>

@@ -137,6 +137,7 @@
     <item name="m3u_playlist" type="id" />
 
     <item name="car_edit_text" type="id" />
+    <item name="nav_panel" type="id" />
     <item name="share" type="id" />
 
     <item name="auto" type="id" />

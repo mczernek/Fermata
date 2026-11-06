@@ -62,6 +62,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
 import androidx.annotation.LayoutRes;
@@ -123,6 +124,7 @@ import me.aap.fermata.ui.fragment.SettingsFragment;
 import me.aap.fermata.ui.fragment.SubtitlesFragment;
 import me.aap.fermata.ui.view.BodyLayout;
 import me.aap.fermata.ui.view.ControlPanelView;
+import me.aap.fermata.ui.view.NavPanel;
 import me.aap.fermata.ui.view.VideoView;
 import me.aap.utils.app.App;
 import me.aap.utils.async.FutureSupplier;
@@ -164,6 +166,7 @@ public class MainActivityDelegate extends ActivityDelegate
 	private BodyLayout body;
 	private ControlPanelView controlPanel;
 	private FloatingButton floatingButton;
+	private NavPanel navPanel;
 	private ContentLoadingProgressBar progressBar;
 	private FutureSupplier<?> contentLoading;
 	private boolean barsHidden;
@@ -480,7 +483,7 @@ public class MainActivityDelegate extends ActivityDelegate
 	}
 
 	/**
-	 * The Home action of the car action strip.
+	 * The Home action of the navigation panel.
 	 */
 	public void goHome() {
 		if (hideActiveMenu()) return;
@@ -489,8 +492,7 @@ public class MainActivityDelegate extends ActivityDelegate
 	}
 
 	/**
-	 * The Menu action of the car action strip - the menu of the active screen, that is shown by the
-	 * floating button or the navigation bar otherwise.
+	 * The Menu action of the navigation panel - the menu of the active screen.
 	 */
 	public void showNavMenu() {
 		if (hideActiveMenu()) return;
@@ -1055,9 +1057,10 @@ public class MainActivityDelegate extends ActivityDelegate
 		body = a.findViewById(R.id.body_layout);
 		controlPanel = a.findViewById(R.id.control_panel);
 		floatingButton = a.findViewById(R.id.floating_button);
-		floatingButton.setScale(getPrefs().getTextIconSizePref(this));
-		// In the car, Home, Back and Menu are provided by the car action strip or the overlay
-		if (AUTO && a.isCarActivity()) floatingButton.setHidden(true);
+		// Home, Back and Menu are provided by the navigation panel
+		floatingButton.setHidden(true);
+		navPanel = new NavPanel(this, !a.isTouchDragSupported());
+		((ViewGroup) a.findViewById(R.id.main_activity)).addView(navPanel);
 		controlPanel.bind(getMediaServiceBinder());
 		if (isCarHome()) navBar.setVisibility(GONE);
 
@@ -1112,7 +1115,7 @@ public class MainActivityDelegate extends ActivityDelegate
 		} else if (AUTO && prefs.contains(MainActivityPrefs.CAR_HOME_AA)) {
 			if (navBar != null) navBar.setVisibility(isCarHome() ? GONE : VISIBLE);
 		} else if (MainActivityPrefs.hasTextIconSizePref(this, prefs)) {
-			if (floatingButton != null) floatingButton.setScale(getPrefs().getTextIconSizePref(this));
+			if (navPanel != null) navPanel.createButtons();
 		} else if (MainActivityPrefs.hasNavBarSizePref(this, prefs)) {
 			if (navBar != null) navBar.setSize(getPrefs().getNavBarSizePref(this));
 		} else if (MainActivityPrefs.hasToolBarSizePref(this, prefs)) {

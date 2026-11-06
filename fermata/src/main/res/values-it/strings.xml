@@ -206,6 +206,9 @@
     <string name="search">Cerca</string>
     <string name="filter">Filtra</string>
     <string name="settings">Impostazioni</string>
+    <string name="nav_panel_home">Home</string>
+    <string name="nav_panel_back">Indietro</string>
+    <string name="nav_panel_move">Sposta pannello</string>
     <string name="menu">Menù</string>
     <string name="exit">Esci</string>
     <string name="cancel">Annulla</string>

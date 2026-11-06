@@ -213,6 +213,9 @@
     <string name="search">Recherche</string>
     <string name="filter">Filtrer</string>
     <string name="settings">Paramètres</string>
+    <string name="nav_panel_home">Accueil</string>
+    <string name="nav_panel_back">Retour</string>
+    <string name="nav_panel_move">Déplacer le panneau</string>
     <string name="menu">Menu</string>
     <string name="exit">Quitter</string>
     <string name="cancel">Annuler</string>

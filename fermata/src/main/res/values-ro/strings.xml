@@ -206,6 +206,9 @@
     <string name="search">Căutare</string>
     <string name="filter">Filtru</string>
     <string name="settings">Setări</string>
+    <string name="nav_panel_home">Acasă</string>
+    <string name="nav_panel_back">Înapoi</string>
+    <string name="nav_panel_move">Mută panoul</string>
     <string name="menu">Meniu</string>
     <string name="exit">Ieșire</string>
     <string name="cancel">Anulare</string>

@@ -206,6 +206,9 @@
     <string name="search">بحث</string>
     <string name="filter">تنقية</string>
     <string name="settings">الاعدادات</string>
+    <string name="nav_panel_home">الرئيسية</string>
+    <string name="nav_panel_back">رجوع</string>
+    <string name="nav_panel_move">نقل اللوحة</string>
     <string name="menu">القائمة</string>
     <string name="exit">خروج</string>
     <string name="cancel">إلغاء</string>

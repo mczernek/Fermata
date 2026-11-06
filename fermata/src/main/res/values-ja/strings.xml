@@ -213,6 +213,9 @@
     <string name="search">検索</string>
     <string name="filter">フィルター</string>
     <string name="settings">設定</string>
+    <string name="nav_panel_home">ホーム</string>
+    <string name="nav_panel_back">戻る</string>
+    <string name="nav_panel_move">パネルを移動</string>
     <string name="menu">メニュー</string>
     <string name="exit">終了</string>
     <string name="cancel">キャンセル</string>

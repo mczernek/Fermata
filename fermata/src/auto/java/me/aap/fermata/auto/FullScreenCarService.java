@@ -152,16 +152,13 @@ public class FullScreenCarService extends CarAppService {
 		@Override
 		public Template onGetTemplate() {
 			var ctx = getCarContext();
+			// Home, Back and Menu are on the navigation panel, drawn over the content. The template
+			// requires an action strip, so it only has the menu.
 			return new NavigationTemplate.Builder()
 					.setActionStrip(new ActionStrip.Builder()
-							.addAction(action(ctx, R.drawable.home, display::home))
-							.addAction(action(ctx, R.drawable.back, display::back)).build())
-					// Scroll events are only delivered to apps, supporting the pan mode.
-					// The menu replaces the floating button, that is hidden in the car. It is not on the
-					// top action strip, where it would cover e.g. the search button of YouTube.
-					.setMapActionStrip(new ActionStrip.Builder()
-							.addAction(action(ctx, R.drawable.car_menu, display::menu))
-							.addAction(Action.PAN).build())
+							.addAction(action(ctx, R.drawable.car_menu, display::menu)).build())
+					// Scroll events are only delivered to apps, supporting the pan mode
+					.setMapActionStrip(new ActionStrip.Builder().addAction(Action.PAN).build())
 					.build();
 		}
 

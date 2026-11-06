@@ -178,16 +178,8 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 		});
 	}
 
-	void home() {
-		delegate.onSuccess(MainActivityDelegate::goHome);
-	}
-
 	void menu() {
 		delegate.onSuccess(MainActivityDelegate::showNavMenu);
-	}
-
-	void back() {
-		delegate.onSuccess(MainActivityDelegate::onBackPressed);
 	}
 
 	@NonNull
@@ -204,6 +196,11 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 	@Override
 	public boolean isCarHomeRequired() {
 		return true;
+	}
+
+	@Override
+	public boolean isTouchDragSupported() {
+		return false;
 	}
 
 	@Override

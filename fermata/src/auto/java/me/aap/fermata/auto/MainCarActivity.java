@@ -126,9 +126,6 @@ public class MainCarActivity extends CarActivity implements FermataActivity {
 		ActivityDelegate.setContextToDelegate(contextToDelegate = c2d);
 		delegate = completed(d);
 		d.onActivityCreate(state);
-		if (findViewById(R.id.main_activity) instanceof ViewGroup root) {
-			root.addView(new CarNavOverlay(d));
-		}
 		return d;
 	}
 

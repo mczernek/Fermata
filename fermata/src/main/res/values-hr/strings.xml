@@ -206,6 +206,9 @@
     <string name="search">Pretraži</string>
     <string name="filter">Filter</string>
     <string name="settings">Postavke</string>
+    <string name="nav_panel_home">Početna</string>
+    <string name="nav_panel_back">Natrag</string>
+    <string name="nav_panel_move">Pomakni ploču</string>
     <string name="menu">Izbornik</string>
     <string name="exit">Izlaz</string>
     <string name="cancel">Odustani</string>

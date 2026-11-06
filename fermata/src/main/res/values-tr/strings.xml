@@ -206,6 +206,9 @@
     <string name="search">Ara</string>
     <string name="filter">Filtre</string>
     <string name="settings">Ayarlar</string>
+    <string name="nav_panel_home">Ana sayfa</string>
+    <string name="nav_panel_back">Geri</string>
+    <string name="nav_panel_move">Paneli taşı</string>
     <string name="menu">Menü</string>
     <string name="exit">Çıkış</string>
     <string name="cancel">İptal</string>

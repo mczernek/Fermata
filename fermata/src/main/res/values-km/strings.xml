@@ -206,6 +206,9 @@
     <string name="search">ស្វែងរក</string>
     <string name="filter">តម្រង</string>
     <string name="settings">ការកំណត់</string>
+    <string name="nav_panel_home">ទំព័រដើម</string>
+    <string name="nav_panel_back">ថយក្រោយ</string>
+    <string name="nav_panel_move">ផ្លាស់ទីផ្ទាំង</string>
     <string name="menu">ម៉ឺនុយ</string>
     <string name="exit">ចេញ</string>
     <string name="cancel">បោះបង់</string>
