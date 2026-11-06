@@ -86,6 +86,20 @@
         </service>
 
         <service
+            android:name="me.aap.fermata.auto.WebBrowserCarActivityService"
+            android:exported="true"
+            android:icon="@drawable/car_app_web_browser"
+            android:label="@string/addon_name_web_browser"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION" />
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION_OEM" />
+            </intent-filter>
+        </service>
+
+        <service
             android:name="me.aap.fermata.auto.MirrorService"
             android:exported="true"
             android:icon="@drawable/mirror"
@@ -140,7 +154,7 @@
             android:name="me.aap.fermata.auto.WebBrowserCarService"
             android:exported="true"
             android:icon="@drawable/car_app_web_browser"
-            android:label="@string/addon_name_web_browser"
+            android:label="@string/car_app_web_browser_fs"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />

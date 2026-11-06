@@ -3,6 +3,7 @@
     <string name="full_screen_service_name">Fermata Full Screen</string>
     <string name="car_app_youtube_fs" translatable="false">Youtube Full Screen</string>
     <string name="car_app_tv_fs" translatable="false">TV Full Screen</string>
+    <string name="car_app_web_browser_fs" translatable="false">Web browser Full Screen</string>
 
     <color name="car_app_youtube_bg">#FF0000</color>
     <color name="car_app_web_browser_bg">#1A73E8</color>

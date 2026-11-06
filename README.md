@@ -60,7 +60,7 @@ Request upload key reset); the app signing key itself is managed by Google.
   `fermata/src/auto/res/xml/automotive_app_desc.xml` (upstream disabled it, as it may conflict
   with the media service since AA 17.3). Android Auto must have "Unknown sources" enabled in its
   developer settings to list them.
-* "Youtube Full Screen", "TV Full Screen" and "Web browser" Android Auto
+* "Youtube Full Screen", "TV Full Screen" and "Web browser Full Screen" Android Auto
   apps - the same full screen UI, opened on another initial screen (`YoutubeCarService`,
   `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
   get the whole screen. All of them share one UI, so switching between them keeps the state. Home
@@ -68,9 +68,10 @@ Request upload key reset); the app signing key itself is managed by Google.
   Menu (and Pan, for scrolling). In the split screen, tap the app icon in the Android Auto rail to get back to the
   full screen. The `web` and `tv` modules are delivered at install time, so they are always
   available.
-* "Youtube" and "TV" Android Auto apps - the regular, projection based versions (not
-  navigation apps), shown in the split screen like Fermata itself (`YoutubeCarActivityService`,
-  `TvCarActivityService`, `MainCarActivity.getInitialAddon()`).
+* "Youtube", "TV" and "Web browser" Android Auto apps - the regular, projection based versions
+  (not navigation apps), shown in the split screen like Fermata itself
+  (`YoutubeCarActivityService`, `TvCarActivityService`, `WebBrowserCarActivityService`,
+  `MainCarActivity.getInitialAddon()`).
 * No floating button. Its actions are on the navigation panel (`NavPanel`) - Home, Back and Menu
   in one panel, the same on the phone, in the projection based and in the full screen car apps,
   including the video players. It is shown, when the screen is touched, and hidden after 5 seconds
