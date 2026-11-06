@@ -70,19 +70,6 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name="me.aap.fermata.auto.NetflixCarActivityService"
-            android:exported="true"
-            android:icon="@drawable/car_app_netflix"
-            android:label="@string/addon_name_netflix"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION" />
-                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION_OEM" />
-            </intent-filter>
-        </service>
 
         <service
             android:name="me.aap.fermata.auto.TvCarActivityService"
@@ -148,17 +135,6 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name="me.aap.fermata.auto.NetflixCarService"
-            android:exported="true"
-            android:icon="@drawable/car_app_netflix"
-            android:label="@string/car_app_netflix_fs"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="androidx.car.app.CarAppService" />
-                <category android:name="androidx.car.app.category.NAVIGATION" />
-            </intent-filter>
-        </service>
 
         <service
             android:name="me.aap.fermata.auto.WebBrowserCarService"

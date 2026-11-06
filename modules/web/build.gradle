@@ -15,16 +15,10 @@ ext {
                     order: 2
             ],
             [
-                    name : 'netflix',
-                    icon : 'netflix',
-                    class: 'me.aap.fermata.addon.web.netflix.NetflixAddon',
-                    order: 3
-            ],
-            [
                     name : 'web_browser',
                     icon : 'web',
                     class: 'me.aap.fermata.addon.web.WebBrowserAddon',
-                    order: 4
+                    order: 3
             ]
     ]
 }

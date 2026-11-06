@@ -1,7 +1,7 @@
 [versions]
 # App
-appVersionCode = "274"
-appVersionName = "122.0.2"
+appVersionCode = "275"
+appVersionName = "132.0.2"
 
 # Build tooling
 agp = "9.4.1"
