@@ -12,6 +12,12 @@
 //                                 [--notes "text"] [--lang en-US] [--package <id>]
 //       Uploads the bundle and releases it on the track. --status draft is required while the app
 //       is still a draft in Play Console. --track production releases to everyone.
+//   node scripts/play-publish.mjs --listing [--lang en-US]
+//       Prints the store listings (all languages, or the given one). Changes nothing.
+//   node scripts/play-publish.mjs --set-listing --lang en-US [--title "..."] [--short "..."]
+//                                 [--full-file description.txt] [--icon icon.png]
+//                                 [--feature-graphic feature.png]
+//       Updates the store listing texts and replaces the icon / feature graphic.
 
 import { createSign } from 'node:crypto';
 import { readFileSync, statSync } from 'node:fs';
@@ -25,10 +31,15 @@ function args() {
   for (let i = 0; i < v.length; i++) {
     const k = v[i];
     if (k === '--validate') a.validate = true;
+    else if (k === '--listing') a.listing = true;
+    else if (k === '--set-listing') a.setListing = true;
     else if (k.startsWith('--')) a[k.slice(2)] = v[++i];
     else throw new Error(`Unexpected argument: ${k}`);
   }
-  if (!a.validate && !a.aab) throw new Error('Either --validate or --aab <file> is required');
+  if (!a.validate && !a.listing && !a.setListing && !a.aab) {
+    throw new Error('One of --validate, --listing, --set-listing or --aab <file> is required');
+  }
+  if (a.setListing && !process.argv.includes('--lang')) throw new Error('--set-listing requires --lang');
   return a;
 }
 
@@ -91,6 +102,38 @@ async function main() {
         console.log(`  ${t.track}: ${rel.join('; ') || 'no releases'}`);
       }
       console.log('Play access OK');
+      return;
+    }
+
+    if (a.listing) {
+      const { listings = [] } = await call('GET', `${editUrl}/listings`);
+      for (const l of listings.filter(l => !process.argv.includes('--lang') || l.language === a.lang)) {
+        console.log(`--- ${l.language}\ntitle: ${l.title}\nshort: ${l.shortDescription}\nfull:\n${l.fullDescription}\n`);
+      }
+      const details = await call('GET', `${editUrl}/details`);
+      console.log(`default language: ${details.defaultLanguage}`);
+      return;
+    }
+
+    if (a.setListing) {
+      const body = {};
+      if (a.title) body.title = a.title;
+      if (a.short) body.shortDescription = a.short;
+      if (a['full-file']) body.fullDescription = readFileSync(a['full-file'], 'utf8').trim();
+      if (Object.keys(body).length) {
+        await call('PATCH', `${editUrl}/listings/${a.lang}`, body);
+        console.log(`Listing ${a.lang} updated: ${Object.keys(body).join(', ')}`);
+      }
+      for (const [opt, type] of [['icon', 'icon'], ['feature-graphic', 'featureGraphic']]) {
+        if (!a[opt]) continue;
+        const imgs = `${editUrl}/listings/${a.lang}/${type}`;
+        await call('DELETE', imgs);
+        await call('POST', imgs.replace(API, UPLOAD_API) + '?uploadType=media', readFileSync(a[opt]),
+          { 'Content-Type': 'image/png' });
+        console.log(`${type} replaced (${a.lang})`);
+      }
+      const committed = await call('POST', `${editUrl}:commit`);
+      console.log(`Committed edit ${committed.id}`);
       return;
     }
 

@@ -368,7 +368,7 @@
     <string name="open_log">Abrir arquivo de registro</string>
     <string name="unlock_phone_and_grant">Desbloqueie o telefone e conceda as permissões solicitadas.</string>
     <string name="screen_capture_rejected">Solicitação de captura de tela rejeitada.</string>
-    <string name="accessibility_dsc">O serviço de acessibilidade é utilizado pelo Fermata Mirror para simular eventos de tela sensível ao toque.</string>
+    <string name="accessibility_dsc">O serviço de acessibilidade é utilizado pelo DashCinema Mirror para simular eventos de tela sensível ao toque.</string>
     <string name="media_projection_action_text">Iniciar agora</string>
 
     <string name="about">Sobre</string>

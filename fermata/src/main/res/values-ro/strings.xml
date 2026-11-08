@@ -361,11 +361,11 @@
     <string name="open_log">Deschide fișierul jurnal</string>
     <string name="unlock_phone_and_grant">Deblochează telefonul și acordă permisiunile solicitate.</string>
     <string name="screen_capture_rejected">Solicitare de capturare a ecranului respinsă.</string>
-    <string name="accessibility_dsc">Serviciul de accesibilitate este folosit de Fermata Mirror pentru a simula evenimentele ecranului tactil.</string>
+    <string name="accessibility_dsc">Serviciul de accesibilitate este folosit de DashCinema Mirror pentru a simula evenimentele ecranului tactil.</string>
     <string name="media_projection_action_text">Începe acum</string>
 
     <string name="about">Despre</string>
-    <string name="about_html"><![CDATA[<H1 align="center">Fermata Media Player</H1>
+    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
         <p>Fermata Media Player este un player audio și video gratis, open source  cu o interfață simplă și
         intuitivă.</p>
         <p><b>Author:</b> Andrey Pavlenko</p>

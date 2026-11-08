@@ -368,11 +368,11 @@
     <string name="open_log">Protokolldatei öffnen</string>
     <string name="unlock_phone_and_grant">Entsperren Sie das Telefon und erteilen Sie die angeforderten Berechtigungen.</string>
     <string name="screen_capture_rejected">Anfrage zur Bildschirmaufnahme abgelehnt.</string>
-    <string name="accessibility_dsc">Der Barrierefreiheitsdienst wird von Fermata Mirror verwendet, um Touchscreen-Ereignisse zu simulieren.</string>
+    <string name="accessibility_dsc">Der Barrierefreiheitsdienst wird von DashCinema Mirror verwendet, um Touchscreen-Ereignisse zu simulieren.</string>
     <string name="media_projection_action_text">Jetzt starten</string>
 
     <string name="about">Über Fermata</string>
-    <string name="about_html"><![CDATA[<H1 align="center">Fermata Media Player</H1>
+    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
         <p>Fermata Media Player ist ein kostenloser Open-Source-Audio- und Videoplayer mit einer
         einfachen und intuitiven Benutzeroberfläche.</p>
         <p><b>Autor:</b> Andrey Pavlenko</p>

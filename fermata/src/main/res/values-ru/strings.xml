@@ -361,11 +361,11 @@
     <string name="open_log">Открыть лог файл</string>
     <string name="unlock_phone_and_grant">Разблокируйте телефон и предоставьте запрошенные разрешения.</string>
     <string name="screen_capture_rejected">Запрос на трянсляцию экрана отклонен.</string>
-    <string name="accessibility_dsc">Эта служба используется Fermata Mirror для взаимодействия с экраном телефона.</string>
+    <string name="accessibility_dsc">Эта служба используется DashCinema Mirror для взаимодействия с экраном телефона.</string>
     <string name="media_projection_action_text">Начать</string>
 
     <string name="about">О приложении</string>
-    <string name="about_html"><![CDATA[<H1 align="center">Fermata Media Player</H1>
+    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
         <p>Fermata Media Player - это бесплатный, с открытым исходным кодом, аудио и видео плеер
         с простым и интуитивным интерфейсом.</p>
         <p><b>Автор:</b> Андрей Павленко</p>

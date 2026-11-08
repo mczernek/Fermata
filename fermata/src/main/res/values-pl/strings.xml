@@ -361,11 +361,11 @@
     <string name="open_log">Otwórz plik dziennika</string>
     <string name="unlock_phone_and_grant">Odblokuj telefon i udziel żądanych uprawnień.</string>
     <string name="screen_capture_rejected">Żądanie przechwycenia ekranu zostało odrzucone.</string>
-    <string name="accessibility_dsc">Usługa dostępności jest wykorzystywana przez Fermata Mirror do symulacji zdarzeń na ekranie dotykowym.</string>
+    <string name="accessibility_dsc">Usługa dostępności jest wykorzystywana przez DashCinema Mirror do symulacji zdarzeń na ekranie dotykowym.</string>
     <string name="media_projection_action_text">Zacząć teraz</string>
 
     <string name="about">O programie</string>
-    <string name="about_html"><![CDATA[<H1 align="center">Fermata Media Player</H1>
+    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
         <p>Fermata Media Player to darmowy odtwarzacz audio i wideo typu open source z prostym i
          intuicyjny interfejsem.</p>
         <p><b>Author:</b> Andrey Pavlenko</p>

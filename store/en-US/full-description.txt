@@ -1,0 +1,25 @@
+DashCinema turns your car's display into a screen for videos, live TV and streaming services, for the moments you're parked: waiting at a charger, a break on a long trip, or sitting in the car while you wait for someone.
+
+WHAT YOU CAN WATCH
+• YouTube, with videos opening full screen in the right aspect ratio
+• Disney+ and CANAL+ online, signed in with your own subscription
+• Live TV from M3U / IPTV playlists, with free Polish, world news and sport & music channels ready to go
+• Any website, in the built-in web browser
+• Your own music and video files, from the phone, SD card or network shares
+
+MADE FOR THE CAR SCREEN
+• Separate car apps for each service: open YouTube, Disney+, CANAL+ online, TV or the browser straight from the car launcher
+• Every service in two versions: next to your map in the split screen, or on the whole screen
+• A simple Home / Back / Menu panel you can move to any corner, sized for touch screens in a car
+• Your sign-ins, favourites and playback position are shared between the phone and the car
+
+SAFETY FIRST
+DashCinema is for passengers and for when the car is parked. Never watch video while driving. Follow the traffic law where you are.
+
+BEFORE YOU START
+Android Auto lists DashCinema's car apps only when "Unknown sources" is enabled in Android Auto's developer settings (open Android Auto settings, tap the version number 10 times, then turn on Unknown sources).
+
+OPEN SOURCE
+DashCinema is free and open source (GPL-3.0), based on Fermata Media Player by Andrey Pavlenko.
+
+DashCinema is an independent app and is not affiliated with or endorsed by Google, YouTube, Disney or CANAL+. Android Auto, YouTube, Disney+ and CANAL+ are trademarks of their respective owners. Streaming services require your own subscription.

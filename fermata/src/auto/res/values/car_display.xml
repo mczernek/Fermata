@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="full_screen_service_name">Fermata Full Screen</string>
+    <string name="full_screen_service_name">DashCinema Full Screen</string>
     <string name="car_app_youtube_fs" translatable="false">Youtube Full Screen</string>
     <string name="car_app_disney_fs" translatable="false">Disney+ Full Screen</string>
     <string name="car_app_canal_plus_fs" translatable="false">CANAL+ online Full Screen</string>

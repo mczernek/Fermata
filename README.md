@@ -1,4 +1,6 @@
 ## This fork (mczernek)
+
+This fork is published as **DashCinema** (`me.aap.fermata.mczernek.auto`): streaming, live TV and the web on the car screen, while parked. Icon: a dashboard gauge whose hub is a play button (`fermata_bg`, `fermata_s`, `fermata_l` drawables). Google Play listing assets and texts: `scripts/play-publish.mjs --set-listing`.
 Personal build of Fermata for Android Auto, published to Google Play (internal testing track) as
 `me.aap.fermata.mczernek.auto`. Fork-only changes live on the `mczernek` branch, rebased on top of
 upstream `master`. The `master` branch is kept identical to upstream.
@@ -103,7 +105,9 @@ Request upload key reset); the app signing key itself is managed by Google.
   through the Google Play Developer API with a service account key, that has access to the app in
   Play Console. `PLAY_SERVICE_ACCOUNT_JSON_PATH=<key.json> node scripts/play-publish.mjs --validate`
   checks the access, `... --aab <file.aab> [--track internal] [--name 162.0.2] [--notes "..."]`
-  uploads and releases it on the track (`internal` by default).
+  uploads and releases it on the track (`internal` by default), `--listing` prints the store
+  listing and `--set-listing --lang en-US [--title] [--short] [--full-file] [--icon]
+  [--feature-graphic]` updates it (needs the "Manage store presence" permission).
 * The debug-only `CarDisplayPreviewActivity` accepts `--es addon <addon class>` to preview them.
 
 ## !!!Be aware of scam!!! The sites like https :// fermata-auto . com  are 100% scam. This app is free and opensource!

@@ -361,7 +361,7 @@
     <string name="open_log">បើកឯកសារកំណត់ហេតុ</string>
     <string name="unlock_phone_and_grant">ដោះសោទូរសព្ទ ហើយផ្តល់ការអនុញ្ញាតដែលបានស្នើសុំ។</string>
     <string name="screen_capture_rejected">សំណើ​ថត​អេក្រង់​ត្រូវ​បាន​បដិសេធ។</string>
-    <string name="accessibility_dsc">សេវាកម្ម​មធ្យោបាយ​ងាយស្រួល​ត្រូវ​បាន​ប្រើ​ដោយ Fermata Mirror ដើម្បី​ក្លែង​ធ្វើ​ព្រឹត្តិការណ៍​ប៉ះ​លើ​អេក្រង់។</string>
+    <string name="accessibility_dsc">សេវាកម្ម​មធ្យោបាយ​ងាយស្រួល​ត្រូវ​បាន​ប្រើ​ដោយ DashCinema Mirror ដើម្បី​ក្លែង​ធ្វើ​ព្រឹត្តិការណ៍​ប៉ះ​លើ​អេក្រង់។</string>
     <string name="media_projection_action_text">ចាប់ផ្តើមឥឡូវនេះ</string>
 
     <string name="about">អំពី</string>
