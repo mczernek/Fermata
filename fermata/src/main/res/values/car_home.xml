@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="car_home_fragment" type="id" />
+    <item name="home_tile_icon" type="id" />
+    <item name="home_tile_icon_box" type="id" />
+    <item name="home_tile_title" type="id" />
+    <item name="home_tile_subtitle" type="id" />
+    <item name="home_tile_chevron" type="id" />
+    <item name="media_tabs" type="id" />
 
     <string name="car_home">Home</string>
     <string name="car_home_pref">Home screen with tiles</string>
     <string name="car_home_pref_sub">Replace the navigation bar with a home screen of large tiles. The floating button goes back, a long press goes home</string>
     <string name="now_playing">Now playing</string>
+    <string name="home_streaming">Streaming</string>
+    <string name="home_tv_and_media">TV and your media</string>
+    <string name="home_more">More</string>
+    <string name="home_tv_sub">Live channels from your playlists</string>
+    <string name="home_my_media">My media</string>
+    <string name="home_my_media_sub">Folders, favorites, playlists</string>
     <string name="voice_assistant">Voice</string>
     <string name="app_version">Version</string>
 </resources>

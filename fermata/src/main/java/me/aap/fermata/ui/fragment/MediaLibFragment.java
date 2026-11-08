@@ -99,7 +99,15 @@ public abstract class MediaLibFragment extends MainActivityFragment implements M
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
 													 @Nullable Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.media_items_list_view, container, false);
+		View list = inflater.inflate(R.layout.media_items_list_view, container, false);
+		return hasMediaTabs() ? MediaTabsView.wrap(list, getFragmentId()) : list;
+	}
+
+	/**
+	 * Folders, Favorites and Playlists are grouped as My media, with tabs on top to switch them.
+	 */
+	protected boolean hasMediaTabs() {
+		return false;
 	}
 
 	@Override
@@ -140,7 +148,7 @@ public abstract class MediaLibFragment extends MainActivityFragment implements M
 
 	private void cleanUp(MainActivityDelegate a) {
 		Log.d("Cleaning up fragment: ", this);
-		MediaItemListView v = (MediaItemListView) getView();
+		MediaItemListView v = (getView() == null) ? null : getListView();
 		PreferenceStore ap = a.getPrefs();
 		FermataServiceUiBinder b = a.getMediaServiceBinder();
 		ap.removeBroadcastListener(this);
@@ -356,7 +364,8 @@ public abstract class MediaLibFragment extends MainActivityFragment implements M
 
 	@NonNull
 	public MediaItemListView getListView() {
-		return (MediaItemListView) requireView();
+		View v = requireView();
+		return (v instanceof MediaItemListView l) ? l : v.findViewById(R.id.media_items_list_view);
 	}
 
 	public void discardSelection() {
@@ -414,7 +423,7 @@ public abstract class MediaLibFragment extends MainActivityFragment implements M
 		boolean viewChanged = hasGridViewPref(a, prefs);
 
 		if (viewChanged || hasTextIconSizePref(getMainActivity(), prefs)) {
-			MediaItemListView list = (MediaItemListView) getView();
+			MediaItemListView list = (getView() == null) ? null : getListView();
 
 			if (list != null) {
 				Context ctx = getContext();

@@ -56,6 +56,12 @@ import me.aap.utils.vfs.local.LocalFileSystem;
 public class FoldersFragment extends MediaLibFragment {
 
 	@Override
+	protected boolean hasMediaTabs() {
+		return true;
+	}
+
+
+	@Override
 	protected ListAdapter createAdapter(FermataServiceUiBinder b) {
 		return new FoldersAdapter(getMainActivity(), b.getLib().getFolders());
 	}

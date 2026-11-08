@@ -354,24 +354,9 @@ public class MainActivityDelegate extends ActivityDelegate
 			}
 		}
 
-		if (isCarHome()) {
-			showHome();
-			checkUpdates();
-			return;
-		}
-
-		FutureSupplier<Boolean> f = goToCurrent().onCompletion((ok, fail1) -> {
-			if ((fail1 != null) && !isCancellation(fail1)) {
-				Log.e(fail1, "Last played track not found");
-			}
-			if ((ok == null) || !ok) showFragment(R.id.folders_fragment);
-			checkUpdates();
-		});
-
-		if (!f.isDone() || f.isFailed() || !Boolean.TRUE.equals(f.peek())) {
-			showFragment(R.id.folders_fragment);
-			setContentLoading(f);
-		}
+		// The home screen - the hub of the streaming services, TV and the local media
+		showHome();
+		checkUpdates();
 	}
 
 	private void checkUpdates() {
@@ -479,7 +464,22 @@ public class MainActivityDelegate extends ActivityDelegate
 	}
 
 	public void showHome() {
+		selectNavItem(R.id.car_home_fragment);
 		showFragment(R.id.car_home_fragment);
+	}
+
+	/**
+	 * Makes the item active and highlights it in the navigation bar, if visible.
+	 */
+	public void selectNavItem(int id) {
+		NavBarView nb = getNavBar();
+		if (nb != null) {
+			View old = nb.findViewById(getActiveNavItemId());
+			if (old != null) old.setSelected(false);
+			View v = nb.findViewById(id);
+			if (v != null) v.setSelected(true);
+		}
+		setActiveNavItemId(id);
 	}
 
 	/**
@@ -487,8 +487,7 @@ public class MainActivityDelegate extends ActivityDelegate
 	 */
 	public void goHome() {
 		if (hideActiveMenu()) return;
-		if (isCarHome()) showHome();
-		else backToNavFragment();
+		showHome();
 	}
 
 	/**
@@ -522,6 +521,7 @@ public class MainActivityDelegate extends ActivityDelegate
 			case MainActivityPrefs.THEME_STAR_WARS -> R.style.AppTheme_BlackStarWars;
 			case MainActivityPrefs.THEME_PURPLE -> R.style.AppTheme_Purple;
 			case MainActivityPrefs.THEME_CLASSIC -> R.style.AppTheme_Classic;
+			case MainActivityPrefs.THEME_DASHCINEMA -> R.style.AppTheme_DashCinema;
 			default -> R.style.AppTheme_Dark;
 		};
 		ctx.setTheme(theme);
@@ -740,7 +740,7 @@ public class MainActivityDelegate extends ActivityDelegate
 
 	public void backToNavFragment() {
 		int id = getActiveNavItemId();
-		showFragment((id == ID_NULL) ? R.id.folders_fragment : id);
+		showFragment((id == ID_NULL) ? R.id.car_home_fragment : id);
 	}
 
 	@Override
@@ -858,7 +858,7 @@ public class MainActivityDelegate extends ActivityDelegate
 
 	@Override
 	protected boolean exitOnBackPressed() {
-		if (isCarHome() && !isHomeActive()) {
+		if (!isHomeActive()) {
 			showHome();
 			return false;
 		}

@@ -21,6 +21,12 @@ import me.aap.utils.ui.menu.OverlayMenuItem;
 public class PlaylistsFragment extends MediaLibFragment {
 
 	@Override
+	protected boolean hasMediaTabs() {
+		return true;
+	}
+
+
+	@Override
 	protected ListAdapter createAdapter(FermataServiceUiBinder b) {
 		return new PlaylistsAdapter(getMainActivity(), b.getLib().getPlaylists());
 	}

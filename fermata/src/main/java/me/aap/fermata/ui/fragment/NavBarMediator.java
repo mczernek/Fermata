@@ -39,7 +39,6 @@ import me.aap.fermata.ui.view.BodyLayout;
 import me.aap.fermata.ui.view.ControlPanelView;
 import me.aap.fermata.ui.view.MediaItemListView;
 import me.aap.fermata.util.Utils;
-import me.aap.utils.collection.CollectionUtils;
 import me.aap.utils.function.Supplier;
 import me.aap.utils.holder.IntHolder;
 import me.aap.utils.log.Log;
@@ -63,6 +62,7 @@ import me.aap.utils.ui.view.ToolBarView;
  */
 public class NavBarMediator extends PrefNavBarMediator
 		implements AddonManager.Listener, OverlayMenu.SelectionHandler {
+	private static final String TV_ADDON = "me.aap.fermata.addon.tv.TvAddon";
 	private static final Pref<Supplier<String[]>> PREF_B =
 			Pref.sa("NAV_BAR_ITEMS_B", (String[]) null);
 	private static final Pref<Supplier<String[]>> PREF_L =
@@ -80,10 +80,15 @@ public class NavBarMediator extends PrefNavBarMediator
 
 		for (String name : names) {
 			switch (name) {
+				case "home":
+					items.add(create(ctx, R.id.car_home_fragment, R.drawable.home, R.string.car_home,
+							items.size() < max));
+					continue;
 				case "folders":
+					// My media - folders, favorites and playlists, switched with the tabs on top
 					items.add(
-							create(ctx, R.id.folders_fragment, me.aap.utils.R.drawable.folder, R.string.folders,
-									items.size() < max));
+							create(ctx, R.id.folders_fragment, me.aap.utils.R.drawable.folder,
+									R.string.home_my_media, items.size() < max));
 					continue;
 				case "favorites":
 					items.add(
@@ -322,23 +327,25 @@ public class NavBarMediator extends PrefNavBarMediator
 		if (!Utils.openUrl(ctx, url)) showInfo(ctx, R.string.use_phone_for_donation);
 	}
 
+	/**
+	 * Home (the streaming services), TV, My media (folders, favorites, playlists) and the menu.
+	 * The order may be changed by the user (the preference), other items are not shown.
+	 */
 	private Collection<String> getLayout(NavBarView nb) {
-		AddonManager amgr = FermataApplication.get().getAddonManager();
-		Set<String> names = newLinkedHashSet(BuildConfig.ADDONS.length + 4);
+		Set<String> allowed = newLinkedHashSet(4);
+		allowed.add("home");
+		if (getAddonManager().getAddon(TV_ADDON) instanceof FermataFragmentAddon) allowed.add(TV_ADDON);
+		allowed.add("folders");
+		allowed.add("menu");
+		Set<String> names = newLinkedHashSet(4);
 		String[] pref = getPreferenceStore(nb).getStringArrayPref(getPref(nb));
-		CollectionUtils.addAll(names, pref);
-		names.add("folders");
-		names.add("favorites");
-		names.add("playlists");
-		for (AddonInfo ai : BuildConfig.ADDONS) {
-			FermataAddon a = amgr.getAddon(ai.className);
-			if (a instanceof FermataFragmentAddon) names.add(ai.className);
-		}
-		names.add("menu");
+		if (pref != null) for (String n : pref) if (allowed.contains(n)) names.add(n);
+		names.addAll(allowed);
 		return names;
 	}
 
 	private static String idToName(@IdRes int id) {
+		if (id == R.id.car_home_fragment) return "home";
 		if (id == R.id.folders_fragment) return "folders";
 		else if (id == R.id.favorites_fragment) return "favorites";
 		else if (id == R.id.playlists_fragment) return "playlists";

@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.DrawableRes;
+import androidx.core.content.ContextCompat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -89,7 +90,8 @@ public final class NavPanel extends LinearLayout {
 		int pad = (int) toPx(ctx, 4);
 		setPadding(pad, pad, pad, pad);
 		GradientDrawable bg = new GradientDrawable();
-		bg.setColor(0x99000000);
+		bg.setColor(0xEB0A1417); // DashCinema ground, slightly translucent
+		bg.setStroke((int) toPx(ctx, 1), ContextCompat.getColor(ctx, R.color.dc_line));
 		bg.setCornerRadius(toPx(ctx, 32));
 		setBackground(bg);
 		createButtons();

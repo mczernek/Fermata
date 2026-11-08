@@ -1,19 +1,36 @@
 package me.aap.fermata.ui.fragment;
 
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,13 +50,18 @@ import me.aap.utils.ui.view.FloatingButton;
 import me.aap.utils.ui.view.ToolBarView;
 
 /**
- * The car home screen - large tiles for every top level destination, replacing the nav bar.
- * The tiles are laid out to fit the screen without scrolling, if possible.
+ * The home screen - a hub of the streaming services, TV and the local media, on the phone and in
+ * the car. Every streaming service has its own tile, TV and the local media (folders, favorites,
+ * playlists) are grouped. Other addons and the voice assistant are in the "More" section.
+ * <p>
+ * Settings, About and Exit are in the menu of the navigation bar / panel.
  */
 public class CarHomeFragment extends MainActivityFragment implements AddonManager.Listener {
-	private static final int MIN_TILE_DP = 80;
-	private static final int GAP_DP = 8;
-	private final TileAdapter adapter = new TileAdapter();
+	private static final String TV_ADDON = "me.aap.fermata.addon.tv.TvAddon";
+	private static final String STREAMING_PKG = "me.aap.fermata.addon.web.";
+	private static final int WIDE_DP = 600;
+	private static final int GAP_DP = 12;
+	private final HomeAdapter adapter = new HomeAdapter();
 
 	@Override
 	public int getFragmentId() {
@@ -65,7 +87,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
 													 @Nullable Bundle savedInstanceState) {
-		return new TileGrid(inflater.getContext(), adapter);
+		return new HomeGrid(inflater.getContext(), adapter);
 	}
 
 	@Override
@@ -93,49 +115,79 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 	}
 
 	private void reload() {
-		if (getView() instanceof TileGrid g) {
-			adapter.setTiles(createTiles(getActivityDelegate()));
+		if (getView() instanceof HomeGrid g) {
+			MainActivityDelegate a = getActivityDelegate();
+			adapter.setItems(createItems(a), a.isCarActivity());
 			g.requestLayout();
 		}
 	}
 
-	private static List<Tile> createTiles(MainActivityDelegate a) {
-		List<Tile> tiles = new ArrayList<>();
-		if (a.hasCurrent()) tiles.add(new Tile(R.drawable.go_to_current, R.string.now_playing,
-				() -> a.goToCurrent()));
-		tiles.add(fragmentTile(a, R.id.folders_fragment, me.aap.utils.R.drawable.folder,
-				R.string.folders));
-		tiles.add(fragmentTile(a, R.id.favorites_fragment, R.drawable.favorite_filled,
-				R.string.favorites));
-		tiles.add(fragmentTile(a, R.id.playlists_fragment, R.drawable.playlist, R.string.playlists));
-
+	private static List<Item> createItems(MainActivityDelegate a) {
+		List<Item> streaming = new ArrayList<>();
+		List<Item> groups = new ArrayList<>();
+		List<Item> more = new ArrayList<>();
 		AddonManager amgr = AddonManager.get();
+
 		for (AddonInfo ai : BuildConfig.ADDONS) {
-			FermataAddon addon = amgr.getAddon(ai.className);
-			if (addon instanceof FermataFragmentAddon fa)
-				tiles.add(fragmentTile(a, fa.getFragmentId(), ai.icon, ai.addonName));
+			if (!(amgr.getAddon(ai.className) instanceof FermataFragmentAddon fa)) continue;
+			int id = fa.getFragmentId();
+			Runnable open = () -> a.showFragment(id);
+
+			if (ai.className.equals(TV_ADDON)) {
+				groups.add(0, new Item(Item.GROUP, ai.icon, ai.addonName, R.string.home_tv_sub,
+						R.color.dc_tv, R.color.dc_tv_dim, R.color.dc_tv_text, open));
+			} else if (ai.className.startsWith(STREAMING_PKG)) {
+				streaming.add(new Item(Item.SERVICE, ai.icon, ai.addonName, 0,
+						serviceColor(ai.className), 0, 0, open));
+			} else {
+				more.add(new Item(Item.SMALL, ai.icon, ai.addonName, 0, R.color.dc_other,
+						R.color.dc_other_dim, 0, open));
+			}
 		}
+
+		groups.add(new Item(Item.GROUP, me.aap.utils.R.drawable.folder, R.string.home_my_media,
+				R.string.home_my_media_sub, R.color.dc_media, R.color.dc_media_dim, R.color.dc_media_text,
+				() -> {
+					a.selectNavItem(R.id.folders_fragment);
+					a.showFragment(R.id.folders_fragment);
+				}));
 
 		if (a.getPrefs().getVoiceControlEnabledPref()) {
-			tiles.add(new Tile(R.drawable.record_voice, R.string.voice_assistant,
-					a::startVoiceAssistant));
+			more.add(new Item(Item.SMALL, R.drawable.record_voice, R.string.voice_assistant, 0,
+					R.color.dc_other, R.color.dc_other_dim, 0, a::startVoiceAssistant));
 		}
 
-		tiles.add(fragmentTile(a, R.id.settings_fragment, R.drawable.settings, R.string.settings));
-		tiles.add(new Tile(R.drawable.about, R.string.about, () -> NavBarMediator.showAbout(a)));
-		tiles.add(new Tile(R.drawable.exit,
-				a.isCarActivityNotMirror() ? R.string.restart : R.string.exit,
-				() -> NavBarMediator.exit(a)));
-		return tiles;
+		boolean car = a.isCarActivity();
+		List<Item> items = new ArrayList<>();
+		items.add(new Item(Item.HEADER, 0, 0, 0, 0, 0, 0, null));
+		if (!streaming.isEmpty()) {
+			if (!car) items.add(section(R.string.home_streaming));
+			items.addAll(streaming);
+		}
+		if (!car) items.add(section(R.string.home_tv_and_media));
+		items.addAll(groups);
+		if (!more.isEmpty()) {
+			items.add(section(R.string.home_more));
+			items.addAll(more);
+		}
+		return items;
 	}
 
-	private static Tile fragmentTile(MainActivityDelegate a, int fragmentId, @DrawableRes int icon,
-																	 @StringRes int title) {
-		return new Tile(icon, title, () -> a.showFragment(fragmentId));
+	private static Item section(@StringRes int title) {
+		return new Item(Item.SECTION, 0, title, 0, 0, 0, 0, null);
+	}
+
+	@ColorRes
+	private static int serviceColor(String className) {
+		if (className.endsWith(".YoutubeAddon")) return R.color.dc_youtube;
+		if (className.endsWith(".DisneyAddon")) return R.color.dc_disney;
+		if (className.endsWith(".CanalPlusAddon")) return R.color.dc_canal;
+		if (className.endsWith(".WebBrowserAddon")) return R.color.dc_web;
+		return R.color.dc_other;
 	}
 
 	/**
-	 * Everything the floating button offers is available as a tile.
+	 * Everything the floating button offers is available on this screen or in the menu.
 	 */
 	private static final class HiddenFloatingButton implements FloatingButton.Mediator {
 		static final HiddenFloatingButton instance = new HiddenFloatingButton();
@@ -152,144 +204,375 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		}
 	}
 
-	private record Tile(@DrawableRes int icon, @StringRes int title, Runnable action) {}
+	private record Item(int type, @DrawableRes int icon, @StringRes int title, @StringRes int subtitle,
+											@ColorRes int color, @ColorRes int dimColor, @ColorRes int subtitleColor,
+											Runnable action) {
+		static final int HEADER = 0;
+		static final int SECTION = 1;
+		static final int SERVICE = 2;
+		static final int GROUP = 3;
+		static final int SMALL = 4;
+	}
 
 	/**
-	 * Picks the number of columns that gives the largest tiles while showing all of them.
-	 * Falls back to a scrollable grid of minimum size tiles when the screen is too small.
+	 * Two columns on the phone, four on wide screens. In the car the tiles are sized to fill the
+	 * screen, if possible.
 	 */
-	private static final class TileGrid extends RecyclerView {
-		private final TileAdapter adapter;
+	private static final class HomeGrid extends RecyclerView {
+		private final HomeAdapter adapter;
 		private final GridLayoutManager lm;
 		private final int gap;
 
-		TileGrid(Context ctx, TileAdapter adapter) {
+		HomeGrid(Context ctx, HomeAdapter adapter) {
 			super(ctx);
 			this.adapter = adapter;
 			gap = UiUtils.toIntPx(ctx, GAP_DP);
-			lm = new GridLayoutManager(ctx, 1);
+			lm = new GridLayoutManager(ctx, 2);
+			lm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+				@Override
+				public int getSpanSize(int position) {
+					int cols = lm.getSpanCount();
+					return switch (adapter.getItemViewType(position)) {
+						case Item.SERVICE, Item.SMALL -> 1;
+						case Item.GROUP -> (cols <= 2) ? cols : cols / 2;
+						default -> cols;
+					};
+				}
+			});
 			setLayoutManager(lm);
 			setAdapter(adapter);
-			setPadding(gap / 2, gap / 2, gap / 2, gap / 2);
+			setPadding(gap, gap / 2, gap, gap * 2);
 			setClipToPadding(false);
 			addItemDecoration(new ItemDecoration() {
 				@Override
 				public void getItemOffsets(@NonNull android.graphics.Rect out, @NonNull View view,
 																	 @NonNull RecyclerView parent, @NonNull State state) {
-					out.set(gap / 2, gap / 2, gap / 2, gap / 2);
+					int pos = parent.getChildAdapterPosition(view);
+					if (adapter.fit && (pos != NO_POSITION) &&
+							(adapter.getItemViewType(pos) == Item.SECTION)) out.set(0, 0, 0, 0);
+					else out.set(gap / 2, gap / 2, gap / 2, gap / 2);
 				}
 			});
 		}
 
 		@Override
 		protected void onMeasure(int widthSpec, int heightSpec) {
-			int w = MeasureSpec.getSize(widthSpec) - gap;
-			int h = MeasureSpec.getSize(heightSpec) - gap;
-			int n = adapter.getItemCount();
+			Context ctx = getContext();
+			int w = MeasureSpec.getSize(widthSpec);
+			int h = MeasureSpec.getSize(heightSpec);
+			int cols = (w >= UiUtils.toIntPx(ctx, WIDE_DP)) ? 4 : 2;
+			if (lm.getSpanCount() != cols) lm.setSpanCount(cols);
 
-			if ((w > 0) && (h > 0) && (n > 0)) {
-				int min = UiUtils.toIntPx(getContext(), MIN_TILE_DP);
-				int bestCols = 0;
-				int bestSize = 0;
-				int bestHeight = 0;
+			int service = UiUtils.toIntPx(ctx, 128);
+			int group = UiUtils.toIntPx(ctx, 80);
 
-				for (int cols = 1; cols <= n; cols++) {
-					int rows = (n + cols - 1) / cols;
-					int cellW = w / cols - gap;
-					int cellH = h / rows - gap;
-					int size = Math.min(cellW, cellH);
-					if ((size >= min) && (size > bestSize)) {
-						bestCols = cols;
-						bestSize = size;
-						// Do not stretch the tiles to more than 3:4 (w:h)
-						bestHeight = Math.min(cellH, cellW * 4 / 3);
-					}
+			// In the car and on wide, short screens (landscape) everything fits on one screen
+			boolean fit = adapter.car || ((h > 0) && (w > h));
+
+			if (fit && (h > 0)) {
+				// Fill the screen: the header, the service rows and one row of the groups
+				int rows = (adapter.count(Item.SERVICE) + cols - 1) / cols;
+				int avail = h - getPaddingTop() - getPaddingBottom() - UiUtils.toIntPx(ctx, 64) -
+						gap * (rows + 1);
+				if (rows > 0) {
+					service = Math.max(UiUtils.toIntPx(ctx, 96), avail * 3 / 5 / rows);
+					group = Math.max(UiUtils.toIntPx(ctx, 80), avail * 2 / 5);
+				} else {
+					group = Math.max(UiUtils.toIntPx(ctx, 80), avail);
 				}
-
-				if (bestCols == 0) { // Does not fit - scroll
-					bestCols = Math.max(1, w / (min + gap));
-					bestHeight = min;
-				}
-
-				if (lm.getSpanCount() != bestCols) lm.setSpanCount(bestCols);
-				adapter.setTileHeight(bestHeight);
 			}
 
+			adapter.setSizes(service, group, fit);
 			super.onMeasure(widthSpec, heightSpec);
 		}
 	}
 
-	private static final class TileAdapter extends RecyclerView.Adapter<TileHolder> {
-		private List<Tile> tiles = new ArrayList<>();
-		private int tileHeight;
+	private static final class HomeAdapter extends RecyclerView.Adapter<HomeHolder> {
+		private List<Item> items = new ArrayList<>();
+		boolean car;
+		boolean fit;
+		private int serviceHeight;
+		private int groupHeight;
 
 		@SuppressWarnings("NotifyDataSetChanged")
-		void setTiles(List<Tile> tiles) {
-			this.tiles = tiles;
+		void setItems(List<Item> items, boolean car) {
+			this.items = items;
+			this.car = car;
 			notifyDataSetChanged();
 		}
 
 		@SuppressWarnings("NotifyDataSetChanged")
-		void setTileHeight(int tileHeight) {
-			if (this.tileHeight == tileHeight) return;
-			this.tileHeight = tileHeight;
+		void setSizes(int serviceHeight, int groupHeight, boolean fit) {
+			if ((this.serviceHeight == serviceHeight) && (this.groupHeight == groupHeight) &&
+					(this.fit == fit)) return;
+			this.fit = fit;
+			this.serviceHeight = serviceHeight;
+			this.groupHeight = groupHeight;
 			notifyDataSetChanged();
+		}
+
+		int count(int type) {
+			int n = 0;
+			for (Item i : items) if (i.type() == type) n++;
+			return n;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			return items.get(position).type();
 		}
 
 		@NonNull
 		@Override
-		public TileHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			View v = LayoutInflater.from(parent.getContext())
-					.inflate(R.layout.car_home_tile, parent, false);
-			return new TileHolder(v);
+		public HomeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			Context ctx = parent.getContext();
+			return switch (viewType) {
+				case Item.HEADER -> new HomeHolder(createHeader(ctx));
+				case Item.SECTION -> new HomeHolder(createSection(ctx));
+				case Item.SERVICE -> new HomeHolder(createService(ctx));
+				default -> new HomeHolder(createGroup(ctx));
+			};
 		}
 
 		@Override
-		public void onBindViewHolder(@NonNull TileHolder h, int position) {
-			h.bind(tiles.get(position), tileHeight);
+		public void onBindViewHolder(@NonNull HomeHolder h, int position) {
+			h.bind(items.get(position), this);
 		}
 
 		@Override
 		public int getItemCount() {
-			return tiles.size();
+			return items.size();
 		}
 	}
 
-	private static final class TileHolder extends RecyclerView.ViewHolder {
-		private final ImageView icon;
-		private final TextView title;
-		private Tile tile;
+	private static final class HomeHolder extends RecyclerView.ViewHolder {
+		private Item item;
 
-		TileHolder(View v) {
+		HomeHolder(View v) {
 			super(v);
-			icon = v.findViewById(R.id.car_home_tile_icon);
-			title = v.findViewById(R.id.car_home_tile_title);
-			v.setOnClickListener(t -> {
-				if (tile != null) tile.action().run();
+			if (v.isClickable()) v.setOnClickListener(t -> {
+				if ((item != null) && (item.action() != null)) item.action().run();
 			});
 		}
 
-		void bind(Tile tile, int height) {
-			this.tile = tile;
-			icon.setImageResource(tile.icon());
-			title.setText(tile.title());
+		void bind(Item item, HomeAdapter adapter) {
+			this.item = item;
+			Context ctx = itemView.getContext();
 
-			if (height > 0) {
-				ViewGroup.LayoutParams lp = itemView.getLayoutParams();
-				if (lp.height != height) {
-					lp.height = height;
-					itemView.setLayoutParams(lp);
+			switch (item.type()) {
+				case Item.HEADER -> {
+					TextView t = (TextView) itemView;
+					t.setTextSize(COMPLEX_UNIT_PX, UiUtils.toPx(ctx, adapter.car ? 34 : 30));
 				}
-				// Scale the content with the tile, so it's readable on large and small screens
-				int iconSize = height * 2 / 5;
-				ViewGroup.LayoutParams ilp = icon.getLayoutParams();
-				if (ilp.width != iconSize) {
-					ilp.width = ilp.height = iconSize;
-					icon.setLayoutParams(ilp);
+				case Item.SECTION -> {
+					// The section titles take too much space, when everything must fit on one screen
+					((TextView) itemView).setText(ctx.getString(item.title()).toUpperCase());
+					itemView.setVisibility(adapter.fit ? View.GONE : View.VISIBLE);
+					setHeight(adapter.fit ? 0 : WRAP_CONTENT);
 				}
-				title.setTextSize(COMPLEX_UNIT_PX, Math.max(height / 9f,
-						UiUtils.toPx(itemView.getContext(), 12)));
+				case Item.SERVICE -> bindService(ctx, item, adapter);
+				default -> bindGroup(ctx, item, adapter);
 			}
 		}
+
+		private void bindService(Context ctx, Item item, HomeAdapter adapter) {
+			int height = adapter.serviceHeight;
+			setHeight(height);
+			int color = ContextCompat.getColor(ctx, item.color());
+			itemView.setBackground(tileBackground(ctx, color, adapter.car ? 24 : 22));
+			ImageView icon = itemView.findViewById(R.id.home_tile_icon);
+			TextView title = itemView.findViewById(R.id.home_tile_title);
+			icon.setImageResource(item.icon());
+			title.setText(item.title());
+			int iconSize = Math.max(UiUtils.toIntPx(ctx, 36), height / 4);
+			setSize(icon, iconSize, iconSize);
+			title.setTextSize(COMPLEX_UNIT_PX, Math.max(UiUtils.toPx(ctx, 17), height / 7f));
+		}
+
+		private void bindGroup(Context ctx, Item item, HomeAdapter adapter) {
+			boolean small = item.type() == Item.SMALL;
+			int height = small ? UiUtils.toIntPx(ctx, 64) : adapter.groupHeight;
+			setHeight(height);
+			itemView.setBackground(
+					tileBackground(ctx, ContextCompat.getColor(ctx, item.dimColor()), adapter.car ? 24 : 22));
+			FrameLayout box = itemView.findViewById(R.id.home_tile_icon_box);
+			ImageView icon = itemView.findViewById(R.id.home_tile_icon);
+			TextView title = itemView.findViewById(R.id.home_tile_title);
+			TextView sub = itemView.findViewById(R.id.home_tile_subtitle);
+			ImageView chevron = itemView.findViewById(R.id.home_tile_chevron);
+			int color = ContextCompat.getColor(ctx, item.color());
+
+			int boxSize = Math.min(height - UiUtils.toIntPx(ctx, 24), UiUtils.toIntPx(ctx, 84));
+			setSize(box, boxSize, boxSize);
+			GradientDrawable boxBg = new GradientDrawable();
+			boxBg.setColor(color);
+			boxBg.setCornerRadius(boxSize * 0.27f);
+			box.setBackground(boxBg);
+			int iconSize = boxSize * 11 / 20;
+			setSize(icon, iconSize, iconSize);
+			icon.setImageResource(item.icon());
+
+			title.setText(item.title());
+			title.setTextSize(COMPLEX_UNIT_PX, UiUtils.toPx(ctx, small ? 16 : (adapter.car ? 26 : 18)));
+
+			if (item.subtitle() != 0) {
+				sub.setVisibility(View.VISIBLE);
+				sub.setText(item.subtitle());
+				sub.setTextColor(ContextCompat.getColor(ctx, item.subtitleColor()));
+				sub.setTextSize(COMPLEX_UNIT_PX, UiUtils.toPx(ctx, adapter.car ? 17 : 13));
+			} else {
+				sub.setVisibility(View.GONE);
+			}
+
+			if (!small && !adapter.car) {
+				chevron.setVisibility(View.VISIBLE);
+				chevron.setImageTintList(ColorStateList.valueOf(color));
+			} else {
+				chevron.setVisibility(View.GONE);
+			}
+		}
+
+		private void setHeight(int height) {
+			ViewGroup.LayoutParams lp = itemView.getLayoutParams();
+			if ((lp != null) && (lp.height != height)) {
+				lp.height = height;
+				itemView.setLayoutParams(lp);
+			}
+		}
+
+		private static void setSize(View v, int w, int h) {
+			ViewGroup.LayoutParams lp = v.getLayoutParams();
+			if ((lp.width != w) || (lp.height != h)) {
+				lp.width = w;
+				lp.height = h;
+				v.setLayoutParams(lp);
+			}
+		}
+	}
+
+	private static TextView createHeader(Context ctx) {
+		TextView t = new TextView(ctx);
+		t.setLayoutParams(new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		int pad = UiUtils.toIntPx(ctx, 4);
+		t.setPadding(pad, pad * 2, pad, pad);
+		t.setTypeface(ResourcesCompat.getFont(ctx, R.font.barlow_condensed_bold));
+		t.setTextColor(ContextCompat.getColor(ctx, R.color.dc_cream));
+		SpannableString s = new SpannableString("DashCinema");
+		s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(ctx, R.color.dc_orange)), 4,
+				s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+		t.setText(s);
+		t.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+		return t;
+	}
+
+	private static TextView createSection(Context ctx) {
+		TextView t = new TextView(ctx);
+		t.setLayoutParams(new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		int pad = UiUtils.toIntPx(ctx, 4);
+		t.setPadding(pad, pad * 3, pad, 0);
+		t.setTextColor(ContextCompat.getColor(ctx, R.color.dc_muted));
+		t.setTextSize(13);
+		t.setLetterSpacing(0.08f);
+		t.setTypeface(ResourcesCompat.getFont(ctx, R.font.plus_jakarta_sans_extrabold));
+		return t;
+	}
+
+	private static View createService(Context ctx) {
+		LinearLayout l = new LinearLayout(ctx);
+		l.setLayoutParams(new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		l.setOrientation(LinearLayout.VERTICAL);
+		int pad = UiUtils.toIntPx(ctx, 16);
+		l.setPadding(pad, pad, pad, pad);
+		makeClickable(ctx, l);
+		int onTile = ContextCompat.getColor(ctx, R.color.dc_on_tile);
+
+		ImageView icon = new ImageView(ctx);
+		icon.setId(R.id.home_tile_icon);
+		icon.setImageTintList(ColorStateList.valueOf(onTile));
+		icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+		icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+		l.addView(icon, new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+
+		View spacer = new View(ctx);
+		l.addView(spacer, new LinearLayout.LayoutParams(0, 0, 1));
+
+		TextView title = new TextView(ctx);
+		title.setId(R.id.home_tile_title);
+		title.setTextColor(onTile);
+		title.setTypeface(ResourcesCompat.getFont(ctx, R.font.plus_jakarta_sans_extrabold));
+		title.setMaxLines(2);
+		title.setEllipsize(TextUtils.TruncateAt.END);
+		l.addView(title, new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+		return l;
+	}
+
+	private static View createGroup(Context ctx) {
+		LinearLayout l = new LinearLayout(ctx);
+		l.setLayoutParams(new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		l.setOrientation(LinearLayout.HORIZONTAL);
+		l.setGravity(Gravity.CENTER_VERTICAL);
+		int pad = UiUtils.toIntPx(ctx, 14);
+		l.setPadding(pad, 0, pad, 0);
+		makeClickable(ctx, l);
+
+		FrameLayout box = new FrameLayout(ctx);
+		box.setId(R.id.home_tile_icon_box);
+		ImageView icon = new ImageView(ctx);
+		icon.setId(R.id.home_tile_icon);
+		icon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.dc_on_tile)));
+		icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+		box.addView(icon, new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER));
+		l.addView(box, new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+
+		LinearLayout texts = new LinearLayout(ctx);
+		texts.setOrientation(LinearLayout.VERTICAL);
+		LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1);
+		tlp.setMarginStart(pad);
+		tlp.setMarginEnd(pad / 2);
+		l.addView(texts, tlp);
+
+		TextView title = new TextView(ctx);
+		title.setId(R.id.home_tile_title);
+		title.setTextColor(ContextCompat.getColor(ctx, R.color.dc_cream));
+		title.setTypeface(ResourcesCompat.getFont(ctx, R.font.plus_jakarta_sans_extrabold));
+		title.setSingleLine();
+		title.setEllipsize(TextUtils.TruncateAt.END);
+		texts.addView(title);
+
+		TextView sub = new TextView(ctx);
+		sub.setId(R.id.home_tile_subtitle);
+		sub.setSingleLine();
+		sub.setEllipsize(TextUtils.TruncateAt.END);
+		texts.addView(sub);
+
+		ImageView chevron = new ImageView(ctx);
+		chevron.setId(R.id.home_tile_chevron);
+		chevron.setImageResource(R.drawable.home_chevron);
+		chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+		int c = UiUtils.toIntPx(ctx, 22);
+		l.addView(chevron, new LinearLayout.LayoutParams(c, c));
+		return l;
+	}
+
+	private static void makeClickable(Context ctx, View v) {
+		v.setClickable(true);
+		v.setFocusable(true);
+		// A cream outline, when focused with the D-pad or a rotary controller
+		StateListDrawable fg = new StateListDrawable();
+		GradientDrawable focus = new GradientDrawable();
+		focus.setCornerRadius(UiUtils.toPx(ctx, 22));
+		focus.setStroke(UiUtils.toIntPx(ctx, 3), ContextCompat.getColor(ctx, R.color.dc_cream));
+		fg.addState(new int[]{android.R.attr.state_focused}, focus);
+		fg.addState(new int[]{}, new ColorDrawable(0));
+		v.setForeground(fg);
+	}
+
+	private static RippleDrawable tileBackground(Context ctx, int color, int radiusDp) {
+		GradientDrawable shape = new GradientDrawable();
+		shape.setColor(color);
+		shape.setCornerRadius(UiUtils.toPx(ctx, radiusDp));
+		ColorStateList ripple =
+				ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.dc_orange_ripple));
+		return new RippleDrawable(ripple, shape, null);
 	}
 }

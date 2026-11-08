@@ -26,6 +26,12 @@ import static me.aap.utils.collection.CollectionUtils.filterMap;
 public class FavoritesFragment extends MediaLibFragment {
 
 	@Override
+	protected boolean hasMediaTabs() {
+		return true;
+	}
+
+
+	@Override
 	protected ListAdapter createAdapter(FermataServiceUiBinder b) {
 		return new FavoritesAdapter(getMainActivity(), b.getLib().getFavorites());
 	}
