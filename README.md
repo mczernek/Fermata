@@ -60,17 +60,17 @@ Request upload key reset); the app signing key itself is managed by Google.
   `fermata/src/auto/res/xml/automotive_app_desc.xml` (upstream disabled it, as it may conflict
   with the media service since AA 17.3). Android Auto must have "Unknown sources" enabled in its
   developer settings to list them.
-* "Youtube Full Screen", "TV Full Screen" and "Web browser Full Screen" Android Auto
+* "Youtube Full Screen", "Disney+ Full Screen", "TV Full Screen" and "Web browser Full Screen" Android Auto
   apps - the same full screen UI, opened on another initial screen (`YoutubeCarService`,
-  `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
+  `DisneyCarService`, `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
   get the whole screen. All of them share one UI, so switching between them keeps the state. Home
   always opens the home screen with tiles. Android Auto requires an action strip, so it only has
   Menu (and Pan, for scrolling). In the split screen, tap the app icon in the Android Auto rail to get back to the
   full screen. The `web` and `tv` modules are delivered at install time, so they are always
   available.
-* "Youtube", "TV" and "Web browser" Android Auto apps - the regular, projection based versions
+* "Youtube", "Disney+", "TV" and "Web browser" Android Auto apps - the regular, projection based versions
   (not navigation apps), shown in the split screen like Fermata itself
-  (`YoutubeCarActivityService`, `TvCarActivityService`, `WebBrowserCarActivityService`,
+  (`YoutubeCarActivityService`, `DisneyCarActivityService`, `TvCarActivityService`, `WebBrowserCarActivityService`,
   `MainCarActivity.getInitialAddon()`).
 * No floating button. Its actions are on the navigation panel (`NavPanel`) - Home, Back and Menu
   in one panel, the same on the phone, in the projection based and in the full screen car apps,
@@ -83,6 +83,14 @@ Request upload key reset); the app signing key itself is managed by Google.
 * YouTube: the automatic full screen on playback clicks the player's own full screen button
   (falls back to the full screen of the player, not the video element, which broke the aspect
   ratio). It can be disabled: YouTube settings -> Open videos in full screen.
+* Disney+ addon (`modules/web/.../disney`): the mobile site asks to install the app, so the web
+  view poses as desktop Chrome, like Chrome's "Desktop site" mode (`DisneyWebView`): desktop Linux
+  User-Agent with the web view's Chrome version, Chrome client hints instead of "Android WebView"
+  (not mobile, Linux), no `X-Requested-With` header and `navigator.platform` "Linux x86_64".
+  Widevine (protected media) is granted by `FermataChromeClient`; if the web view rejects the
+  options of the desktop player (robustness, no distinctive identifier, persistent licenses), the
+  request is repeated without them. The player lays the video out at the top of a tall window, so
+  it's stretched to the player area. Sign-in requires the one-time code, sent by email.
 * Default TV channels: free, official streams in `modules/tv/src/main/res/raw/tv_*.m3u`, each
   added once as a TV source ("Polska", "World News", "Sport & Music"). The local copies are
   refreshed on every version code change, so edit these files and release to update the lists.

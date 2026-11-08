@@ -70,6 +70,20 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name="me.aap.fermata.auto.DisneyCarActivityService"
+            android:exported="true"
+            android:icon="@drawable/car_app_disney"
+            android:label="@string/addon_name_disney"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION" />
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION_OEM" />
+            </intent-filter>
+        </service>
+
 
         <service
             android:name="me.aap.fermata.auto.TvCarActivityService"
@@ -142,6 +156,18 @@
             android:exported="true"
             android:icon="@drawable/car_app_youtube"
             android:label="@string/car_app_youtube_fs"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.NAVIGATION" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="me.aap.fermata.auto.DisneyCarService"
+            android:exported="true"
+            android:icon="@drawable/car_app_disney"
+            android:label="@string/car_app_disney_fs"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />

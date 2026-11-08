@@ -1,0 +1,13 @@
+<!-- A generic "D+" glyph -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M2,5h4.5C10.6,5 13,7.9 13,12s-2.4,7 -6.5,7H2ZM4.5,7.3v9.4h2c2.6,0 4,-1.8 4,-4.7s-1.4,-4.7 -4,-4.7Z"/>
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M17.5,8h2v3h3v2h-3v3h-2v-3h-3v-2h3Z"/>
+</vector>
