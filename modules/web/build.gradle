@@ -27,10 +27,16 @@ ext {
                     order: 4
             ],
             [
+                    name : 'tvp_vod',
+                    icon : 'tvp_vod',
+                    class: 'me.aap.fermata.addon.web.tvp.TvpVodAddon',
+                    order: 5
+            ],
+            [
                     name : 'web_browser',
                     icon : 'web',
                     class: 'me.aap.fermata.addon.web.WebBrowserAddon',
-                    order: 5
+                    order: 6
             ]
     ]
 }

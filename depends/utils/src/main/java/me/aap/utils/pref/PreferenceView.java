@@ -85,6 +85,8 @@ import me.aap.utils.vfs.local.LocalFileSystem;
  */
 public class PreferenceView extends ConstraintLayout {
 	private final ColorStateList textTint;
+	@Nullable
+	private final ColorStateList subtitleTint;
 	@StyleRes
 	private final int titleTextAppearance;
 	@StyleRes
@@ -107,6 +109,7 @@ public class PreferenceView extends ConstraintLayout {
 		titleTextAppearance = ta.getResourceId(R.styleable.PreferenceView_titleTextAppearance, 0);
 		subtitleTextAppearance = ta.getResourceId(R.styleable.PreferenceView_subtitleTextAppearance,
 				0);
+		subtitleTint = ta.getColorStateList(R.styleable.PreferenceView_subtitleTextColor);
 		ta.recycle();
 	}
 
@@ -114,6 +117,7 @@ public class PreferenceView extends ConstraintLayout {
 		setTextAppearance(ctx, getTitleView(), titleTextAppearance, scale);
 		setTextAppearance(ctx, getSubtitleView(), subtitleTextAppearance, scale);
 		setFooterTextAppearance(ctx, scale);
+		if (subtitleTint != null) getSubtitleView().setTextColor(subtitleTint);
 	}
 
 	private void setTextAppearance(Context ctx, TextView v, @StyleRes int res, float scale) {
@@ -593,6 +597,7 @@ public class PreferenceView extends ConstraintLayout {
 		setTextAppearance(ctx, titleView, titleTextAppearance, scale);
 		setTextAppearance(ctx, subtitleView, subtitleTextAppearance, scale);
 		setFooterTextAppearance(ctx, scale);
+		if (subtitleTint != null) subtitleView.setTextColor(subtitleTint);
 
 		if (opts.visibility != null) {
 			if (opts.visibility.get()) {

@@ -109,10 +109,12 @@ public final class CarDisplay {
 		} else {
 			vd.resize(width, height, dpi);
 			vd.setSurface(surface);
+			if (host != null) host.setWindowSize(width, height);
 		}
 
 		if (host == null) {
 			host = new CarDisplayHost(vd.getDisplay(), initialAddon);
+			host.setWindowSize(width, height);
 			host.getWindow().getDecorView().post(() -> {
 				if (host != null) host.setContentInsets(insets);
 			});

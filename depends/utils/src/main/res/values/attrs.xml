@@ -37,7 +37,15 @@
         <attr name="android:textColorHint" />
         <attr name="titleTextAppearance" format="reference" />
         <attr name="subtitleTextAppearance" format="reference" />
+        <!-- Optional: the subtitle color, if different from the title -->
+        <attr name="subtitleTextColor" format="color|reference" />
     </declare-styleable>
+
+    <!-- The preference rows: background, margins and padding (theme attributes) -->
+    <attr name="prefItemBackground" format="reference" />
+    <attr name="prefItemMarginHorizontal" format="dimension" />
+    <attr name="prefItemMarginVertical" format="dimension" />
+    <attr name="prefItemPadding" format="dimension" />
 
     <declare-styleable name="DialogView">
         <attr name="listLayout" />

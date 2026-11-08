@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- launcher with the full screen badge, for the full screen (CarAppService) variant -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/fermata_bg" />
+    <foreground>
+        <layer-list>
+            <item android:drawable="@drawable/fermata_s" />
+            <item android:drawable="@drawable/car_app_fs_badge" />
+        </layer-list>
+    </foreground>
+    <monochrome>
+        <layer-list>
+            <item android:drawable="@drawable/fermata_s" />
+            <item android:drawable="@drawable/car_app_fs_badge_mono" />
+        </layer-list>
+    </monochrome>
+</adaptive-icon>

@@ -72,6 +72,7 @@ import androidx.annotation.StyleRes;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
@@ -143,6 +144,7 @@ import me.aap.utils.ui.activity.ActivityDelegate;
 import me.aap.utils.ui.activity.AppActivity;
 import me.aap.utils.ui.fragment.ActivityFragment;
 import me.aap.utils.ui.menu.OverlayMenu;
+import me.aap.utils.ui.menu.OverlayMenuView;
 import me.aap.utils.ui.view.DialogBuilder;
 import me.aap.utils.ui.view.FloatingButton;
 import me.aap.utils.ui.view.NavBarView;
@@ -163,6 +165,7 @@ public class MainActivityDelegate extends ActivityDelegate
 	private final FermataServiceUiBinder mediaServiceBinder;
 	private ToolBarView toolBar;
 	private NavBarView navBar;
+	private View scrim;
 	private BodyLayout body;
 	private ControlPanelView controlPanel;
 	private FloatingButton floatingButton;
@@ -459,6 +462,15 @@ public class MainActivityDelegate extends ActivityDelegate
 		return getAppActivity().isCarHomeRequired() || getPrefs().getCarHomePref(this);
 	}
 
+	/**
+	 * The navigation bar is never shown on the phone: Home, TV and My media are on the home screen,
+	 * Settings and Menu are in its header and the navigation panel. In the car it is shown only if
+	 * the car home screen is disabled.
+	 */
+	public boolean isNavBarHidden() {
+		return !isCarActivity() || isCarHome();
+	}
+
 	public boolean isHomeActive() {
 		return getActiveFragmentId() == R.id.car_home_fragment;
 	}
@@ -637,7 +649,7 @@ public class MainActivityDelegate extends ActivityDelegate
 			int visibility = barsHidden ? GONE : VISIBLE;
 			ToolBarView tb = getToolBar();
 			if (tb.getMediator() != ToolBarView.Mediator.Invisible.instance) tb.setVisibility(visibility);
-			if (!isCarHome()) getNavBar().setVisibility(visibility);
+			if (!isNavBarHidden()) getNavBar().setVisibility(visibility);
 		});
 	}
 
@@ -754,7 +766,7 @@ public class MainActivityDelegate extends ActivityDelegate
 		BodyLayout b = getBody();
 		if (b.isVideoMode()) b.setMode(BodyLayout.Mode.BOTH);
 		// The nav bar is hidden, thus it does not track the top level fragments
-		if (isCarHome() && isTopLevelFragment(id)) setActiveNavItemId(id);
+		if (isNavBarHidden() && isTopLevelFragment(id)) setActiveNavItemId(id);
 		return super.showFragment(id, input);
 	}
 
@@ -1060,9 +1072,11 @@ public class MainActivityDelegate extends ActivityDelegate
 		// Home, Back and Menu are provided by the navigation panel
 		floatingButton.setHidden(true);
 		navPanel = new NavPanel(this, !a.isTouchDragSupported());
-		((ViewGroup) a.findViewById(R.id.main_activity)).addView(navPanel);
+		ViewGroup main = a.findViewById(R.id.main_activity);
+		main.addView(navPanel);
+		initMenus(main);
 		controlPanel.bind(getMediaServiceBinder());
-		if (isCarHome()) navBar.setVisibility(GONE);
+		if (isNavBarHidden()) navBar.setVisibility(GONE);
 
 		if (VERSION.SDK_INT >= VERSION_CODES.VANILLA_ICE_CREAM && !a.isCarActivity()) {
 			ViewCompat.setOnApplyWindowInsetsListener(toolBar, (v, insets) -> {
@@ -1074,6 +1088,37 @@ public class MainActivityDelegate extends ActivityDelegate
 				return WindowInsetsCompat.CONSUMED;
 			});
 		}
+	}
+
+	/**
+	 * All the menus and dialogs are large and in the center of the screen, over a dimmed backdrop.
+	 */
+	private void initMenus(ViewGroup main) {
+		Context ctx = main.getContext();
+		scrim = new View(ctx);
+		scrim.setBackgroundColor(ContextCompat.getColor(ctx, R.color.dc_scrim));
+		scrim.setElevation(UiUtils.toPx(ctx, 20));
+		scrim.setVisibility(GONE);
+		scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+		main.addView(scrim, new ConstraintLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+		for (int id : new int[]{R.id.tool_menu, R.id.context_menu, R.id.control_menu,
+				R.id.nav_menu_view}) {
+			View v = main.findViewById(id);
+			if (v instanceof OverlayMenuView m) m.center();
+		}
+	}
+
+	@Override
+	public void setActiveMenu(@Nullable OverlayMenu menu) {
+		super.setActiveMenu(menu);
+		if (scrim != null) scrim.setVisibility((menu == null) ? GONE : VISIBLE);
+	}
+
+	@Override
+	public boolean hideActiveMenu() {
+		boolean hidden = super.hideActiveMenu();
+		if (scrim != null) scrim.setVisibility(GONE);
+		return hidden;
 	}
 
 	@LayoutRes
@@ -1113,7 +1158,7 @@ public class MainActivityDelegate extends ActivityDelegate
 		} else if (MainActivityPrefs.hasNavBarPosPref(this, prefs)) {
 			recreate();
 		} else if (AUTO && prefs.contains(MainActivityPrefs.CAR_HOME_AA)) {
-			if (navBar != null) navBar.setVisibility(isCarHome() ? GONE : VISIBLE);
+			if (navBar != null) navBar.setVisibility(isNavBarHidden() ? GONE : VISIBLE);
 		} else if (MainActivityPrefs.hasTextIconSizePref(this, prefs)) {
 			if (navPanel != null) navPanel.createButtons();
 		} else if (MainActivityPrefs.hasNavBarSizePref(this, prefs)) {

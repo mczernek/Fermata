@@ -17,4 +17,6 @@
     <string name="connection_settings">Impostazioni connessione</string>
 
     <string name="err_failed_to_add_tv_source">Impossibile aggiungere sorgente: %1$s</string>
+    <string name="tv_add_playlist">Aggiungi playlist</string>
+    <string name="tv_no_playlists">Nessuna playlist TV. Aggiungi una playlist M3U per guardare i canali in diretta.</string>
 </resources>

@@ -17,4 +17,6 @@
     <string name="connection_settings">Настройки соединения</string>
 
     <string name="err_failed_to_add_tv_source">Не удалось добавить источник: %1$s</string>
+    <string name="tv_add_playlist">Добавить плейлист</string>
+    <string name="tv_no_playlists">Пока нет ТВ-плейлистов. Добавьте плейлист M3U, чтобы смотреть каналы.</string>
 </resources>

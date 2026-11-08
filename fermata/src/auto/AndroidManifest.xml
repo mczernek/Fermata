@@ -98,6 +98,20 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name="me.aap.fermata.auto.TvpVodCarActivityService"
+            android:exported="true"
+            android:icon="@drawable/car_app_tvp_vod"
+            android:label="@string/addon_name_tvp_vod"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION" />
+                <category android:name="com.google.android.gms.car.category.CATEGORY_PROJECTION_OEM" />
+            </intent-filter>
+        </service>
+
 
         <service
             android:name="me.aap.fermata.auto.TvCarActivityService"
@@ -156,7 +170,7 @@
         <service
             android:name="me.aap.fermata.auto.FullScreenCarService"
             android:exported="true"
-            android:icon="@drawable/launcher"
+            android:icon="@drawable/launcher_fs"
             android:label="@string/full_screen_service_name"
             tools:ignore="ExportedService">
             <intent-filter>
@@ -168,7 +182,7 @@
         <service
             android:name="me.aap.fermata.auto.YoutubeCarService"
             android:exported="true"
-            android:icon="@drawable/car_app_youtube"
+            android:icon="@drawable/car_app_youtube_fs"
             android:label="@string/car_app_youtube_fs"
             tools:ignore="ExportedService">
             <intent-filter>
@@ -180,7 +194,7 @@
         <service
             android:name="me.aap.fermata.auto.DisneyCarService"
             android:exported="true"
-            android:icon="@drawable/car_app_disney"
+            android:icon="@drawable/car_app_disney_fs"
             android:label="@string/car_app_disney_fs"
             tools:ignore="ExportedService">
             <intent-filter>
@@ -192,8 +206,20 @@
         <service
             android:name="me.aap.fermata.auto.CanalPlusCarService"
             android:exported="true"
-            android:icon="@drawable/car_app_canal_plus"
+            android:icon="@drawable/car_app_canal_plus_fs"
             android:label="@string/car_app_canal_plus_fs"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.NAVIGATION" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="me.aap.fermata.auto.TvpVodCarService"
+            android:exported="true"
+            android:icon="@drawable/car_app_tvp_vod_fs"
+            android:label="@string/car_app_tvp_vod_fs"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
@@ -205,7 +231,7 @@
         <service
             android:name="me.aap.fermata.auto.WebBrowserCarService"
             android:exported="true"
-            android:icon="@drawable/car_app_web_browser"
+            android:icon="@drawable/car_app_web_browser_fs"
             android:label="@string/car_app_web_browser_fs"
             tools:ignore="ExportedService">
             <intent-filter>
@@ -217,7 +243,7 @@
         <service
             android:name="me.aap.fermata.auto.TvCarService"
             android:exported="true"
-            android:icon="@drawable/car_app_tv"
+            android:icon="@drawable/car_app_tv_fs"
             android:label="@string/car_app_tv_fs"
             tools:ignore="ExportedService">
             <intent-filter>

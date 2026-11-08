@@ -27,6 +27,7 @@ import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.widget.TextViewCompat;
 
 import me.aap.utils.R;
+import me.aap.utils.ui.UiUtils;
 import me.aap.utils.async.FutureSupplier;
 import me.aap.utils.function.Function;
 import me.aap.utils.ui.menu.OverlayMenu.Builder;
@@ -94,8 +95,14 @@ public class OverlayMenuItemView extends AppCompatTextView implements OverlayMen
 		setTextColor(textColor);
 		TextViewCompat.setCompoundDrawableTintList(this, iconTint);
 
-		setCompoundDrawablePadding(padding);
-		setPadding(padding, padding, padding, padding);
+		// Large rows, easy to hit in the car
+		Context ctx = getContext();
+		int hPad = Math.max(padding, (int) UiUtils.toPx(ctx, 20));
+		int vPad = Math.max(padding, (int) UiUtils.toPx(ctx, 12));
+		setCompoundDrawablePadding(Math.max(padding, (int) UiUtils.toPx(ctx, 16)));
+		setPadding(hPad, vPad, hPad, vPad);
+		setMinHeight((int) UiUtils.toPx(ctx, 60));
+		setGravity(android.view.Gravity.CENTER_VERTICAL);
 		setSingleLine(true);
 		setVisibility(VISIBLE);
 		setTextDirection(TEXT_DIRECTION_LOCALE);

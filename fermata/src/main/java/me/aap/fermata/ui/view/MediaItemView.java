@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,6 +41,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -60,6 +62,7 @@ import me.aap.fermata.ui.fragment.MediaLibFragment;
 import me.aap.utils.async.FutureSupplier;
 import me.aap.utils.function.Cancellable;
 import me.aap.utils.log.Log;
+import me.aap.utils.ui.UiUtils;
 import me.aap.utils.ui.activity.ActivityDelegate;
 import me.aap.utils.ui.fragment.ActivityFragment;
 import me.aap.utils.ui.menu.OverlayMenu;
@@ -81,7 +84,7 @@ public class MediaItemView extends ConstraintLayout
 	private final int titleTextAppearance;
 	@StyleRes
 	private final int subtitleTextAppearance;
-	private final ColorStateList iconTint;
+	private ColorStateList iconTint;
 	private final ColorStateList textTint;
 	@Nullable
 	private MediaItemViewHolder holder;
@@ -90,6 +93,9 @@ public class MediaItemView extends ConstraintLayout
 	private VectorDrawableCompat watchingVideoDrawable;
 	private VectorDrawableCompat archiveLabelDrawable;
 	private FutureSupplier<MediaDescriptionCompat> loading;
+	// DashCinema card style (TV channels): rounded cards with colored icon boxes
+	private boolean card;
+	private boolean cardGrid;
 
 	public MediaItemView(Context ctx, AttributeSet attrs) {
 		super(ctx, attrs, R.attr.appMediaItemStyle);
@@ -114,12 +120,121 @@ public class MediaItemView extends ConstraintLayout
 	}
 
 	public void applyLayout(Context ctx, boolean grid, float size) {
+		// The cards are always either a grid or a list, not switched with the preference
+		if (card) grid = (getListView() != null) ? getListView().isGrid() : grid;
 		removeAllViews();
-		inflate(ctx, grid ? R.layout.media_item_grid_layout : R.layout.media_item_list_layout, this);
+		if (card) {
+			cardGrid = grid;
+			inflate(ctx, grid ? R.layout.media_item_card_grid_layout : R.layout.media_item_card_layout,
+					this);
+			applyCardStyle(ctx);
+		} else {
+			inflate(ctx, grid ? R.layout.media_item_grid_layout : R.layout.media_item_list_layout, this);
+		}
 		setSize(ctx, grid, size);
 	}
 
+	/**
+	 * Switches to the DashCinema card style: a rounded card, the icon in a colored box, large
+	 * bold titles. Used for the TV channels.
+	 */
+	public void setCardStyle(boolean card, boolean grid) {
+		if ((this.card == card) && (cardGrid == grid)) return;
+		this.card = card;
+		MainActivityDelegate a = getMainActivity();
+		applyLayout(getContext(), grid, a.getPrefs().getTextIconSizePref(a));
+	}
+
+	public boolean isCardStyle() {
+		return card;
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		if (card && cardGrid) {
+			MediaItemListView l = getListView();
+			int th = (l != null) ? l.getTileHeight() : 0;
+
+			if (th > 0) {
+				int m = 0;
+				if (getLayoutParams() instanceof MarginLayoutParams lp) m = lp.topMargin + lp.bottomMargin;
+				heightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.max(0, th - m), MeasureSpec.EXACTLY);
+			}
+		}
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	}
+
+	private void applyCardStyle(Context ctx) {
+		int pad = UiUtils.toIntPx(ctx, 12);
+		setPadding(pad, pad, pad, pad);
+		iconTint = ColorStateList.valueOf(DcViews.color(ctx, R.color.dc_on_tile));
+		setElevation(0);
+		updateCardBackground();
+		ViewGroup.LayoutParams lp = getLayoutParams();
+		if (lp instanceof MarginLayoutParams m) {
+			int h = UiUtils.toIntPx(ctx, cardGrid ? 6 : 16);
+			int v = UiUtils.toIntPx(ctx, cardGrid ? 6 : 5);
+			m.setMargins(h, v, h, v);
+			setLayoutParams(lp);
+		}
+	}
+
+	private void updateCardBackground() {
+		Context ctx = getContext();
+		int color = DcViews.color(ctx, isActivated() ? R.color.dc_tv_dim : R.color.dc_card);
+		float r = UiUtils.toPx(ctx, cardGrid ? 22 : 18);
+		setBackground(DcViews.card(ctx, color, r));
+		setForeground(DcViews.focusOutline(ctx, r));
+	}
+
+	@Override
+	public void setLayoutParams(ViewGroup.LayoutParams params) {
+		if (card && (params instanceof MarginLayoutParams m)) {
+			Context ctx = getContext();
+			int h = UiUtils.toIntPx(ctx, cardGrid ? 6 : 16);
+			int v = UiUtils.toIntPx(ctx, cardGrid ? 6 : 5);
+			m.setMargins(h, v, h, v);
+		}
+		super.setLayoutParams(params);
+	}
+
+	/**
+	 * The icon box of a card: the color of the item (by its name) for the default icon, a neutral
+	 * box for a logo.
+	 */
+	private void setCardIconBox(@Nullable Item i, boolean logo) {
+		if (!card) return;
+		Context ctx = getContext();
+		ImageView icon = getIcon();
+		int color;
+		if (logo || (i == null)) {
+			color = DcViews.color(ctx, R.color.dc_surface_high);
+		} else {
+			int[] palette = {R.color.dc_tv, R.color.dc_web, R.color.dc_youtube, R.color.dc_pink,
+					R.color.dc_orange, R.color.dc_disney, R.color.dc_other, R.color.dc_canal};
+			color = DcViews.color(ctx, palette[Math.floorMod(i.getName().hashCode(), palette.length)]);
+		}
+		GradientDrawable bg = new GradientDrawable();
+		bg.setColor(color);
+		bg.setCornerRadius(UiUtils.toPx(ctx, 14));
+		icon.setBackground(bg);
+		int pad = UiUtils.toIntPx(ctx, logo ? 6 : 14);
+		icon.setPadding(pad, pad, pad, pad);
+		icon.setClipToOutline(true);
+	}
+
 	public void setSize(Context ctx, boolean grid, float size) {
+		if (card) {
+			TextView t = getTitle();
+			t.setTypeface(ResourcesCompat.getFont(ctx, R.font.plus_jakarta_sans_extrabold));
+			t.setTextSize(COMPLEX_UNIT_PX, UiUtils.toPx(ctx, 16) * size);
+			t.setTextColor(DcViews.color(ctx, R.color.dc_cream));
+			t = getSubtitle();
+			t.setTypeface(ResourcesCompat.getFont(ctx, R.font.plus_jakarta_sans));
+			t.setTextSize(COMPLEX_UNIT_PX, UiUtils.toPx(ctx, 13) * size);
+			t.setTextColor(DcViews.color(ctx, R.color.dc_tv_text));
+			return;
+		}
 		setTextAppearance(ctx, getTitle(), titleTextAppearance, size);
 		setTextAppearance(ctx, getSubtitle(), subtitleTextAppearance, size);
 		if (!grid) {
@@ -202,6 +317,7 @@ public class MediaItemView extends ConstraintLayout
 			setProgress(i, 0, 0);
 		}
 
+		setCardIconBox(i, false);
 		FutureSupplier<MediaDescriptionCompat> load =
 				loading = i.getMediaDescription().main().addConsumer((md, fail, p, total) -> {
 					if (getItemWrapper() != w) return;
@@ -217,7 +333,7 @@ public class MediaItemView extends ConstraintLayout
 						getTitle().setText(ifNull(md.getTitle(), i::getName));
 					}
 					if ((p == PROGRESS_DONE) || (p == 2)) {
-						getSubtitle().setText(md.getSubtitle());
+						setSubtitleText(md.getSubtitle());
 					}
 					if ((p == PROGRESS_DONE) || (p == 3)) {
 						Bundle b = md.getExtras();
@@ -238,6 +354,7 @@ public class MediaItemView extends ConstraintLayout
 												cancelLoading();
 
 												if (bm != null) {
+													setCardIconBox(i, true);
 													icon.setImageTintList(null);
 													icon.setImageBitmap(bm);
 												} else {
@@ -292,12 +409,12 @@ public class MediaItemView extends ConstraintLayout
 			rotate.setRepeatCount(Animation.INFINITE);
 			icon.setImageDrawable(getLoadingDrawable(getContext()));
 			icon.startAnimation(rotate);
-			getSubtitle().setText(R.string.loading);
+			setSubtitleText(R.string.loading);
 		} else {
 			icon.clearAnimation();
 			icon.setImageTintList(iconTint);
 			icon.setImageResource(i.getIcon());
-			getSubtitle().setText("");
+			setSubtitleText("");
 		}
 	}
 
@@ -315,6 +432,17 @@ public class MediaItemView extends ConstraintLayout
 	private static void onActivityDestroyEvent(ActivityDelegate a, long e) {
 		loadingDrawable = null;
 		a.removeBroadcastListener(MediaItemView::onActivityDestroyEvent);
+	}
+
+	private void setSubtitleText(CharSequence text) {
+		TextView t = getSubtitle();
+		t.setText(text);
+		// A card without a subtitle has the title in the middle, the tiles show only the name
+		if (card) t.setVisibility(((text == null) || (text.length() == 0) || cardGrid) ? GONE : VISIBLE);
+	}
+
+	private void setSubtitleText(int text) {
+		setSubtitleText(getContext().getText(text));
 	}
 
 	public ImageView getIcon() {
@@ -468,6 +596,13 @@ public class MediaItemView extends ConstraintLayout
 	}
 
 	private void setState(int surfaceType, boolean activated) {
+		if (card) {
+			getTitle().setActivated(activated);
+			getSubtitle().setActivated(activated);
+			setActivated(activated);
+			updateCardBackground();
+			return;
+		}
 		TextView t = getTitle();
 		t.setTypeface(null, surfaceType);
 		t.setActivated(activated);

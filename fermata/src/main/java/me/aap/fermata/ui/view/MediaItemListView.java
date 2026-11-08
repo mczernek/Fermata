@@ -20,6 +20,7 @@ import me.aap.fermata.media.lib.MediaLib;
 import me.aap.fermata.media.lib.MediaLib.Item;
 import me.aap.fermata.media.lib.MediaLib.PlayableItem;
 import me.aap.fermata.ui.activity.MainActivityDelegate;
+import me.aap.utils.ui.UiUtils;
 import me.aap.fermata.ui.activity.MainActivityPrefs;
 import me.aap.fermata.ui.fragment.MediaLibFragment;
 import me.aap.utils.app.App;
@@ -34,6 +35,9 @@ import me.aap.utils.ui.view.ToolBarView;
 public class MediaItemListView extends RecyclerView implements PreferenceStore.Listener {
 	private boolean isSelectionActive;
 	private boolean grid;
+	@Nullable
+	private Boolean forcedGrid;
+	private int tileHeight;
 	private int focusReq;
 
 	public MediaItemListView(Context ctx, AttributeSet attrs) {
@@ -48,15 +52,62 @@ public class MediaItemListView extends RecyclerView implements PreferenceStore.L
 		configure(newConfig);
 	}
 
+	/**
+	 * Always use the grid (true) or the list (false), regardless of the preference; null - use the
+	 * preference.
+	 */
+	public void setForcedGrid(@Nullable Boolean grid) {
+		forcedGrid = grid;
+		configure(getResources().getConfiguration());
+	}
+
+	public boolean isGrid() {
+		return grid;
+	}
+
+	/**
+	 * The height of a row of the forced grid (the cards in the car): the visible height is divided
+	 * into whole rows, so no row is cut at the top, when the list is scrolled to an item.
+	 * 0 - the tiles have their own height.
+	 */
+	public int getTileHeight() {
+		return tileHeight;
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		updateTileHeight(h);
+	}
+
+	private void updateTileHeight(int h) {
+		int th = 0;
+
+		if (Boolean.TRUE.equals(forcedGrid) && (h > 0)) {
+			MainActivityDelegate a = MainActivityDelegate.get(getContext());
+			int avail = h - getPaddingTop() - getPaddingBottom();
+			int min = (int) (UiUtils.toPx(getContext(), 140) * a.getPrefs().getTextIconSizePref(a));
+			int rows = Math.max(1, avail / Math.max(1, min));
+			th = avail / rows;
+		}
+
+		if (th == tileHeight) return;
+		tileHeight = th;
+		post(() -> {
+			for (int i = 0, n = getChildCount(); i < n; i++) getChildAt(i).requestLayout();
+		});
+	}
+
 	private void configure(Configuration cfg) {
 		Context ctx = getContext();
 		MainActivityDelegate.getActivityDelegate(getContext()).onSuccess(a -> {
 			MainActivityPrefs prefs = a.getPrefs();
-			grid = a.isGridView();
+			grid = (forcedGrid != null) ? forcedGrid : a.isGridView();
 
 			if (grid) {
 				float scale = prefs.getTextIconSizePref(a);
-				int span = (int) Math.max(cfg.screenWidthDp / (128 * scale), 2);
+				int tile = (forcedGrid != null) ? 180 : 128;
+				int span = (int) Math.max(cfg.screenWidthDp / (tile * scale), 2);
 				setLayoutManager(new GridLayoutManager(ctx, span));
 			} else {
 				setLayoutManager(new LinearLayoutManager(ctx));

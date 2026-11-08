@@ -4,10 +4,12 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import me.aap.utils.R;
@@ -21,6 +23,8 @@ import me.aap.utils.ui.UiUtils;
 public class PreferenceViewAdapter extends RecyclerView.Adapter<PreferenceViewAdapter.PrefViewHolder> {
 	private PreferenceSet set;
 	private RecyclerView recyclerView;
+	@Nullable
+	private Runnable setChangedListener;
 
 	public PreferenceViewAdapter(PreferenceSet set) {
 		this.set = set;
@@ -37,13 +41,18 @@ public class PreferenceViewAdapter extends RecyclerView.Adapter<PreferenceViewAd
 		Context ctx = parent.getContext();
 		PreferenceView v = new PreferenceView(ctx);
 		RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-		int margin = (int) UiUtils.toPx(ctx, 1);
-		int padding = (int) UiUtils.toPx(ctx, 5);
+		TypedArray ta = ctx.obtainStyledAttributes(new int[]{R.attr.prefItemBackground,
+				R.attr.prefItemMarginHorizontal, R.attr.prefItemMarginVertical, R.attr.prefItemPadding});
+		int bg = ta.getResourceId(0, R.drawable.box_secondary);
+		int mh = ta.getDimensionPixelSize(1, (int) UiUtils.toPx(ctx, 1));
+		int mv = ta.getDimensionPixelSize(2, (int) UiUtils.toPx(ctx, 1));
+		int padding = ta.getDimensionPixelSize(3, (int) UiUtils.toPx(ctx, 5));
+		ta.recycle();
 		v.setLayoutParams(lp);
-		lp.setMargins(margin, margin, margin, margin);
+		lp.setMargins(mh, mv, mh, mv);
 		v.setPadding(padding, padding, padding, padding);
 		v.setFocusable(true);
-		v.setBackgroundResource(R.drawable.box_secondary);
+		v.setBackgroundResource(bg);
 		return new PrefViewHolder(v);
 	}
 
@@ -73,6 +82,13 @@ public class PreferenceViewAdapter extends RecyclerView.Adapter<PreferenceViewAd
 		return set.preferences.size();
 	}
 
+	/**
+	 * Called when another set is shown, e.g. to update the title.
+	 */
+	public void setOnSetChangedListener(@Nullable Runnable listener) {
+		setChangedListener = listener;
+	}
+
 	public void setPreferenceSet(PreferenceSet set) {
 		PreferenceSet old = getPreferenceSet();
 		if (old != null) old.setAdapter(null);
@@ -80,6 +96,7 @@ public class PreferenceViewAdapter extends RecyclerView.Adapter<PreferenceViewAd
 		this.set = set;
 		set.setAdapter(this);
 		notifyDataSetChanged();
+		if (setChangedListener != null) setChangedListener.run();
 
 		if ((old != null) && (recyclerView != null)) {
 			int idx = set.getPreferences().indexOf(old);

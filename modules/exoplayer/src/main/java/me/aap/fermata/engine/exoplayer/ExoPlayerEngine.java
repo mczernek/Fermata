@@ -269,7 +269,8 @@ public class ExoPlayerEngine extends MediaEngineBase implements Player.Listener 
 	@Override
 	public float getVideoWidth() {
 		Format f = player.getVideoFormat();
-		return (f == null) ? 0 : f.width;
+		// Non-square pixels (e.g. SD broadcasts), otherwise the picture is stretched
+		return (f == null) ? 0 : f.width * ((f.pixelWidthHeightRatio > 0) ? f.pixelWidthHeightRatio : 1F);
 	}
 
 	@Override

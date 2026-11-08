@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DashCinema card row (TV channels): a colored icon box, the title, the subtitle and the progress -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/media_item_icon"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:padding="14dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/media_item_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintBottom_toTopOf="@id/media_item_subtitle"
+        app:layout_constraintEnd_toStartOf="@id/media_item_checkbox"
+        app:layout_constraintStart_toEndOf="@id/media_item_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/media_item_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="3dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintBottom_toTopOf="@id/media_stream_progress"
+        app:layout_constraintEnd_toStartOf="@id/media_item_checkbox"
+        app:layout_constraintStart_toEndOf="@id/media_item_icon"
+        app:layout_constraintTop_toBottomOf="@id/media_item_title" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/media_stream_progress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="7dp"
+        android:visibility="gone"
+        app:indicatorColor="@color/dc_tv"
+        app:trackColor="@color/dc_tv_track"
+        app:trackCornerRadius="2dp"
+        app:trackThickness="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/media_item_checkbox"
+        app:layout_constraintStart_toEndOf="@id/media_item_icon"
+        app:layout_constraintTop_toBottomOf="@id/media_item_subtitle" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/media_item_checkbox"
+        style="?attr/appMediaItemStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</merge>

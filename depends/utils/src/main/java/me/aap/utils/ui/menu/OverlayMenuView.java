@@ -10,6 +10,8 @@ import static me.aap.utils.ui.UiUtils.toPx;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -22,6 +24,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.textview.MaterialTextView;
 
@@ -38,6 +41,8 @@ import me.aap.utils.ui.activity.ActivityDelegate;
  * @author Andrey Pavlenko
  */
 public class OverlayMenuView extends ScrollView implements OverlayMenu {
+	private static final int CORNER_DP = 24;
+	private static final int MAX_WIDTH_DP = 560;
 	@ColorInt
 	private final int headerColor;
 
@@ -51,8 +56,38 @@ public class OverlayMenuView extends ScrollView implements OverlayMenu {
 				androidx.appcompat.R.attr.popupMenuStyle,
 				R.style.Theme_Utils_Base_PopupMenuStyle);
 		headerColor = ta.getColor(OverlayMenuView_colorPrimarySurface, Color.TRANSPARENT);
-		setBackgroundColor(ta.getColor(OverlayMenuView_android_colorBackground, Color.TRANSPARENT));
+		int bg = ta.getColor(OverlayMenuView_android_colorBackground, Color.TRANSPARENT);
 		ta.recycle();
+
+		// A large rounded dialog in the center of the screen, easy to hit in the car
+		GradientDrawable d = new GradientDrawable();
+		d.setColor(bg);
+		d.setCornerRadius(toPx(ctx, CORNER_DP));
+		d.setStroke((int) toPx(ctx, 1), headerColor);
+		setBackground(d);
+		setClipToOutline(true);
+		int pad = (int) toPx(ctx, 8);
+		setPadding(0, pad, 0, pad);
+		setClipToPadding(false);
+		setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
+	}
+
+	/**
+	 * Places the menu in the center of its ConstraintLayout parent: wide (up to the max width) and
+	 * not taller than the parent.
+	 */
+	public void center() {
+		if (!(getLayoutParams() instanceof ConstraintLayout.LayoutParams old)) return;
+		Context ctx = getContext();
+		ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(0, WRAP_CONTENT);
+		lp.startToStart = lp.topToTop = lp.endToEnd = lp.bottomToBottom =
+				ConstraintLayout.LayoutParams.PARENT_ID;
+		lp.matchConstraintMaxWidth = (int) toPx(ctx, MAX_WIDTH_DP);
+		lp.constrainedHeight = true;
+		int m = (int) toPx(ctx, 16);
+		lp.setMargins(m, m, m, m);
+		setLayoutParams(lp);
+		setElevation(Math.max(getElevation(), toPx(ctx, 24)));
 	}
 
 	@Override
@@ -230,7 +265,7 @@ public class OverlayMenuView extends ScrollView implements OverlayMenu {
 		void init() {
 			LinearLayoutCompat view = new LinearLayoutCompat(getContext());
 			view.setOrientation(LinearLayoutCompat.VERTICAL);
-			view.setLayoutParams(new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+			view.setLayoutParams(new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 			view.setPadding(0, 0, 0, 0);
 			addView(view);
 			this.view = view;
@@ -301,16 +336,15 @@ public class OverlayMenuView extends ScrollView implements OverlayMenu {
 			MaterialTextView v = new MaterialTextView(ctx);
 			LinearLayoutCompat.LayoutParams p =
 					new LinearLayoutCompat.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-			int padding = (int) toPx(ctx, 10);
-			int elevation = (int) toPx(ctx, 5);
+			int padding = (int) toPx(ctx, 16);
 			v.setId(R.id.overlay_menu_title);
 			v.setGravity(Gravity.CENTER);
 			v.setText(this.title);
 			v.setLayoutParams(p);
-			v.setElevation(elevation);
-			v.setTranslationZ(elevation);
-			v.setBackgroundColor(headerColor);
-			v.setPadding(0, padding, 0, padding);
+			v.setTextSize(20);
+			v.setTypeface(v.getTypeface(), Typeface.BOLD);
+			v.setPadding(padding, padding / 2, padding, padding);
+			v.setAccessibilityHeading(true);
 			view.addView(v, 0);
 			v.setVisibility(VISIBLE);
 			return this;

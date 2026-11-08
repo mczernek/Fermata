@@ -39,6 +39,14 @@ public interface FermataActivity extends AppActivity {
 		return true;
 	}
 
+	/**
+	 * The width (dp) of the top end corner, covered by the system UI, e.g. the action strip of the
+	 * full screen car apps. The screen headers leave it free.
+	 */
+	default int getTopEndInsetDp() {
+		return 0;
+	}
+
 	void setRequestedOrientation(int requestedOrientation);
 
 	@Nullable

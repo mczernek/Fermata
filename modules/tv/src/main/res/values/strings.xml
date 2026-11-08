@@ -24,4 +24,6 @@
     <string name="connection_settings">Connection settings</string>
 
     <string name="err_failed_to_add_tv_source">Failed to add source: %1$s</string>
+    <string name="tv_add_playlist">Add playlist</string>
+    <string name="tv_no_playlists">No TV playlists yet. Add an M3U playlist to watch live channels.</string>
 </resources>

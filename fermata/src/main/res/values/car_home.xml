@@ -7,6 +7,8 @@
     <item name="home_tile_subtitle" type="id" />
     <item name="home_tile_chevron" type="id" />
     <item name="media_tabs" type="id" />
+    <item name="dc_header_title" type="id" />
+    <item name="dc_header" type="id" />
 
     <string name="car_home">Home</string>
     <string name="car_home_pref">Home screen with tiles</string>
@@ -16,6 +18,7 @@
     <string name="home_tv_and_media">TV and your media</string>
     <string name="home_more">More</string>
     <string name="home_tv_sub">Live channels from your playlists</string>
+    <string name="home_browser_sub">Any website</string>
     <string name="home_my_media">My media</string>
     <string name="home_my_media_sub">Folders, favorites, playlists</string>
     <string name="voice_assistant">Voice</string>

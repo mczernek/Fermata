@@ -27,6 +27,8 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.R;
 
+import me.aap.utils.ui.UiUtils;
+
 /**
  * @author Andrey Pavlenko
  */
@@ -162,6 +164,12 @@ public class DialogView extends FrameLayout implements DialogInterface {
 			Button b = p.findViewById(id);
 			b.setText(text);
 			b.setVisibility(VISIBLE);
+			// Large buttons, easy to hit in the car
+			int h = (int) UiUtils.toPx(b.getContext(), 56);
+			b.setMinHeight(h);
+			b.setMinimumHeight(h);
+			b.setMinWidth((int) UiUtils.toPx(b.getContext(), 112));
+			b.setTextSize(16);
 			b.setOnClickListener(v -> {
 				dialog.dismiss();
 				if (listener != null) listener.onClick(dialog, which);

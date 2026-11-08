@@ -44,6 +44,7 @@ import me.aap.fermata.addon.AddonManager;
 import me.aap.fermata.addon.FermataAddon;
 import me.aap.fermata.addon.FermataFragmentAddon;
 import me.aap.fermata.ui.activity.MainActivityDelegate;
+import me.aap.fermata.ui.view.DcViews;
 import me.aap.utils.ui.UiUtils;
 import me.aap.utils.ui.fragment.ActivityFragment;
 import me.aap.utils.ui.view.FloatingButton;
@@ -59,8 +60,11 @@ import me.aap.utils.ui.view.ToolBarView;
 public class CarHomeFragment extends MainActivityFragment implements AddonManager.Listener {
 	private static final String TV_ADDON = "me.aap.fermata.addon.tv.TvAddon";
 	private static final String STREAMING_PKG = "me.aap.fermata.addon.web.";
+	private static final String BROWSER_ADDON = "me.aap.fermata.addon.web.WebBrowserAddon";
 	private static final int WIDE_DP = 600;
 	private static final int GAP_DP = 12;
+	// Grid spans per column, so that 2, 3 or 4 groups share a row evenly
+	private static final int SPANS = 12;
 	private final HomeAdapter adapter = new HomeAdapter();
 
 	@Override
@@ -126,6 +130,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		List<Item> streaming = new ArrayList<>();
 		List<Item> groups = new ArrayList<>();
 		List<Item> more = new ArrayList<>();
+		Item browser = null;
 		AddonManager amgr = AddonManager.get();
 
 		for (AddonInfo ai : BuildConfig.ADDONS) {
@@ -136,6 +141,10 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 			if (ai.className.equals(TV_ADDON)) {
 				groups.add(0, new Item(Item.GROUP, ai.icon, ai.addonName, R.string.home_tv_sub,
 						R.color.dc_tv, R.color.dc_tv_dim, R.color.dc_tv_text, open));
+			} else if (ai.className.equals(BROWSER_ADDON)) {
+				// Not a streaming service, it's in the second row with TV and My media
+				browser = new Item(Item.GROUP, ai.icon, ai.addonName, R.string.home_browser_sub,
+						R.color.dc_web, R.color.dc_web_dim, R.color.dc_web_text, open);
 			} else if (ai.className.startsWith(STREAMING_PKG)) {
 				streaming.add(new Item(Item.SERVICE, ai.icon, ai.addonName, 0,
 						serviceColor(ai.className), 0, 0, open));
@@ -151,6 +160,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 					a.selectNavItem(R.id.folders_fragment);
 					a.showFragment(R.id.folders_fragment);
 				}));
+		if (browser != null) groups.add(browser);
 
 		if (a.getPrefs().getVoiceControlEnabledPref()) {
 			more.add(new Item(Item.SMALL, R.drawable.record_voice, R.string.voice_assistant, 0,
@@ -182,6 +192,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		if (className.endsWith(".YoutubeAddon")) return R.color.dc_youtube;
 		if (className.endsWith(".DisneyAddon")) return R.color.dc_disney;
 		if (className.endsWith(".CanalPlusAddon")) return R.color.dc_canal;
+		if (className.endsWith(".TvpVodAddon")) return R.color.dc_tvp;
 		if (className.endsWith(".WebBrowserAddon")) return R.color.dc_web;
 		return R.color.dc_other;
 	}
@@ -227,15 +238,17 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 			super(ctx);
 			this.adapter = adapter;
 			gap = UiUtils.toIntPx(ctx, GAP_DP);
-			lm = new GridLayoutManager(ctx, 2);
+			lm = new GridLayoutManager(ctx, 2 * SPANS);
 			lm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
 				@Override
 				public int getSpanSize(int position) {
-					int cols = lm.getSpanCount();
+					int spans = lm.getSpanCount();
+					int cols = spans / SPANS;
 					return switch (adapter.getItemViewType(position)) {
-						case Item.SERVICE, Item.SMALL -> 1;
-						case Item.GROUP -> (cols <= 2) ? cols : cols / 2;
-						default -> cols;
+						case Item.SERVICE, Item.SMALL -> SPANS;
+						// On wide screens all the groups are in one row
+						case Item.GROUP -> (cols <= 2) ? spans : spans / Math.max(1, adapter.count(Item.GROUP));
+						default -> spans;
 					};
 				}
 			});
@@ -261,7 +274,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 			int w = MeasureSpec.getSize(widthSpec);
 			int h = MeasureSpec.getSize(heightSpec);
 			int cols = (w >= UiUtils.toIntPx(ctx, WIDE_DP)) ? 4 : 2;
-			if (lm.getSpanCount() != cols) lm.setSpanCount(cols);
+			if (lm.getSpanCount() != cols * SPANS) lm.setSpanCount(cols * SPANS);
 
 			int service = UiUtils.toIntPx(ctx, 128);
 			int group = UiUtils.toIntPx(ctx, 80);
@@ -361,7 +374,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 
 			switch (item.type()) {
 				case Item.HEADER -> {
-					TextView t = (TextView) itemView;
+					TextView t = itemView.findViewById(R.id.dc_header_title);
 					t.setTextSize(COMPLEX_UNIT_PX, UiUtils.toPx(ctx, adapter.car ? 34 : 30));
 				}
 				case Item.SECTION -> {
@@ -386,7 +399,10 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 			title.setText(item.title());
 			int iconSize = Math.max(UiUtils.toIntPx(ctx, 36), height / 4);
 			setSize(icon, iconSize, iconSize);
-			title.setTextSize(COMPLEX_UNIT_PX, Math.max(UiUtils.toPx(ctx, 17), height / 7f));
+			// Large in the car, but not so large, that long names are cut
+			title.setTextSize(COMPLEX_UNIT_PX,
+					Math.min(UiUtils.toPx(ctx, adapter.car ? 30 : 24),
+							Math.max(UiUtils.toPx(ctx, 17), height / 7f)));
 		}
 
 		private void bindGroup(Context ctx, Item item, HomeAdapter adapter) {
@@ -450,9 +466,30 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		}
 	}
 
-	private static TextView createHeader(Context ctx) {
+	/**
+	 * The wordmark with the Settings and Menu buttons on the right (there is no navigation bar).
+	 */
+	private static View createHeader(Context ctx) {
+		LinearLayout l = new LinearLayout(ctx);
+		l.setId(R.id.dc_header);
+		l.setLayoutParams(new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		l.setOrientation(LinearLayout.HORIZONTAL);
+		l.setGravity(Gravity.CENTER_VERTICAL);
+		l.setPaddingRelative(0, 0, DcViews.topEndInset(ctx), 0);
+		TextView t = createWordmark(ctx);
+		l.addView(t, new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1));
+		DcViews.addAction(l, DcViews.iconButton(ctx, R.drawable.dc_settings, R.color.dc_cream,
+				ctx.getString(R.string.settings),
+				v -> MainActivityDelegate.get(v.getContext()).showFragment(R.id.settings_fragment)));
+		DcViews.addAction(l, DcViews.iconButton(ctx, R.drawable.dc_menu, R.color.dc_cream,
+				ctx.getString(R.string.menu),
+				v -> MainActivityDelegate.get(v.getContext()).showNavMenu()));
+		return l;
+	}
+
+	private static TextView createWordmark(Context ctx) {
 		TextView t = new TextView(ctx);
-		t.setLayoutParams(new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		t.setId(R.id.dc_header_title);
 		int pad = UiUtils.toIntPx(ctx, 4);
 		t.setPadding(pad, pad * 2, pad, pad);
 		t.setTypeface(ResourcesCompat.getFont(ctx, R.font.barlow_condensed_bold));

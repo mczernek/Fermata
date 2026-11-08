@@ -107,6 +107,16 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 				.onFailure(err -> Log.e(err, "Failed to create the car display UI"));
 	}
 
+	/**
+	 * The window has the exact size of the car display. With MATCH_PARENT it got the size of the
+	 * phone screen, when the full screen flags were applied (e.g. playing a video), and the video
+	 * was stretched.
+	 */
+	void setWindowSize(int width, int height) {
+		var w = window.getWindow();
+		if (w != null) w.setLayout(width, height);
+	}
+
 	static FutureSupplier<Integer> getFragmentId(@Nullable String addon) {
 		if (addon == null) return completed(ID_NULL);
 		// Re-enables the addon, if it has been disabled in the settings
@@ -201,6 +211,12 @@ final class CarDisplayHost extends ContextThemeWrapper implements FermataActivit
 	@Override
 	public boolean isTouchDragSupported() {
 		return false;
+	}
+
+	@Override
+	public int getTopEndInsetDp() {
+		// Android Auto draws the action strip (Menu) in the top end corner
+		return 72;
 	}
 
 	@Override

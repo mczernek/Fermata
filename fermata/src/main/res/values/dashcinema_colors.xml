@@ -12,14 +12,22 @@
     <color name="dc_orange_dim">#3A2A17</color>
     <color name="dc_orange_ripple">#40F2A65A</color>
     <color name="dc_on_tile">#0A1417</color>
+    <color name="dc_chip_text">#CFDCDE</color>
+    <color name="dc_card">#122127</color>
+    <color name="dc_scrim">#B3050B0D</color>
 
     <!-- One color per service, solid for the tiles, dim for the group rows -->
     <color name="dc_youtube">#FF5A4F</color>
     <color name="dc_disney">#6F8FFF</color>
     <color name="dc_canal">#B08CFF</color>
     <color name="dc_web">#4CB6F5</color>
+    <color name="dc_web_dim">#0F2A3A</color>
+    <color name="dc_web_text">#B6CDDB</color>
+    <color name="dc_tvp">#FF7FB0</color>
     <color name="dc_tv">#2BC4A0</color>
     <color name="dc_tv_dim">#10302B</color>
+    <color name="dc_tv_track">#1F4A42</color>
+    <color name="dc_pink">#FF7FB0</color>
     <color name="dc_tv_text">#B8CBCD</color>
     <color name="dc_media">#F2A65A</color>
     <color name="dc_media_dim">#2C2213</color>

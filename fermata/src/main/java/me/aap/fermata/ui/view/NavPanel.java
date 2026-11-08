@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewConfiguration;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -126,6 +127,7 @@ public final class NavPanel extends LinearLayout {
 	 * Shows the panel and restarts the hide timer. Called on any user interaction.
 	 */
 	public void show() {
+		updateTopMargin();
 		removeCallbacks(hide);
 		postDelayed(hide, HIDE_DELAY);
 		if ((getVisibility() == VISIBLE) && (fade == null)) return;
@@ -302,8 +304,10 @@ public final class NavPanel extends LinearLayout {
 		int margin = getMargin();
 		boolean end = (corner == TOP_END) || (corner == BOTTOM_END);
 		boolean bottom = (corner == BOTTOM_START) || (corner == BOTTOM_END);
-		float left = end ? (area.getRight() - margin - getWidth()) : (area.getLeft() + margin);
-		float top = bottom ? (area.getBottom() - margin - getHeight()) : (area.getTop() + margin);
+		float left = end ? (area.getRight() - getEndMargin(corner) - getWidth()) :
+				(area.getLeft() + margin);
+		float top = bottom ? (area.getBottom() - margin - getHeight()) :
+				(area.getTop() + getTopMargin(area));
 		float x = getX();
 		float y = getY();
 		setLayoutParams(createLayoutParams(corner));
@@ -312,8 +316,19 @@ public final class NavPanel extends LinearLayout {
 		animate().translationX(0f).translationY(0f).setDuration(SNAP_DURATION).start();
 	}
 
+	@Nullable
 	private View getArea() {
-		return ((View) getParent()).findViewById(R.id.body_layout);
+		return (getParent() instanceof View p) ? p.findViewById(R.id.body_layout) : null;
+	}
+
+	/**
+	 * In the full screen car apps Android Auto draws its round Menu button in the top end corner,
+	 * the panel is placed to the left of it.
+	 */
+	private int getEndMargin(int corner) {
+		int margin = getMargin();
+		if (corner != TOP_END) return margin;
+		return margin + DcViews.topEndInset(getContext());
 	}
 
 	private int getMargin() {
@@ -327,7 +342,7 @@ public final class NavPanel extends LinearLayout {
 		// The content area, so the tool bar, the control panel and the navigation bar are not covered
 		if ((corner == TOP_END) || (corner == BOTTOM_END)) {
 			lp.endToEnd = R.id.body_layout;
-			lp.setMarginEnd(margin);
+			lp.setMarginEnd(getEndMargin(corner));
 		} else {
 			lp.startToStart = R.id.body_layout;
 			lp.setMarginStart(margin);
@@ -337,9 +352,52 @@ public final class NavPanel extends LinearLayout {
 			lp.bottomMargin = margin;
 		} else {
 			lp.topToTop = R.id.body_layout;
-			lp.topMargin = margin;
+			View area = getArea();
+			lp.topMargin = (area != null) ? getTopMargin(area) : margin;
 		}
 		return lp;
+	}
+
+	/**
+	 * In a top corner, the panel is below the screen header (title, back and action buttons), so
+	 * it doesn't cover them.
+	 */
+	private int getTopMargin(View area) {
+		int margin = getMargin();
+		View h = findHeader(area);
+		if (h == null) return margin;
+		int[] hl = new int[2];
+		int[] al = new int[2];
+		h.getLocationInWindow(hl);
+		area.getLocationInWindow(al);
+		int bottom = hl[1] + h.getHeight() - al[1];
+		return Math.max(margin, bottom + margin / 2);
+	}
+
+	@Nullable
+	private static View findHeader(View v) {
+		if (!v.isShown()) return null;
+		if (v.getId() == R.id.dc_header) return v;
+		if (!(v instanceof ViewGroup g)) return null;
+		for (int i = 0, n = g.getChildCount(); i < n; i++) {
+			View h = findHeader(g.getChildAt(i));
+			if (h != null) return h;
+		}
+		return null;
+	}
+
+	/**
+	 * The header depends on the active screen, thus the position is updated when the panel appears.
+	 */
+	private void updateTopMargin() {
+		if ((corner == BOTTOM_START) || (corner == BOTTOM_END) || dragging) return;
+		if (!(getLayoutParams() instanceof ConstraintLayout.LayoutParams lp)) return;
+		View area = getArea();
+		if (area == null) return;
+		int m = getTopMargin(area);
+		if (lp.topMargin == m) return;
+		lp.topMargin = m;
+		setLayoutParams(lp);
 	}
 
 	private AppCompatImageView addButton(Context ctx, int size, @DrawableRes int icon, @StringRes int desc,

@@ -54,6 +54,7 @@ import me.aap.fermata.ui.view.VideoView;
 import me.aap.utils.async.FutureSupplier;
 import me.aap.utils.collection.CollectionUtils;
 import me.aap.utils.io.IoUtils;
+import me.aap.utils.app.App;
 import me.aap.utils.log.Log;
 
 /**
@@ -147,6 +148,7 @@ public class VlcEngine extends MediaEngineBase
 	}
 
 	private void prepared(PendingSource source) {
+		streamSizeRetries = 0;
 		if (source != this.source) {
 			source.close();
 			return;
@@ -454,6 +456,7 @@ public class VlcEngine extends MediaEngineBase
 				}
 
 				if (!isPaused()) player.setSpuTrack(-1);
+				if (videoView != null) setSurfaceSize(videoView);
 				started();
 				listener.onEngineStarted(this);
 			}
@@ -483,6 +486,10 @@ public class VlcEngine extends MediaEngineBase
 			}
 			case MediaPlayer.Event.EncounteredError ->
 					listener.onEngineError(this, new MediaEngineException(""));
+			case MediaPlayer.Event.Vout, MediaPlayer.Event.ESSelected -> {
+				// The size of a stream's video is known only now
+				if (videoView != null) setSurfaceSize(videoView);
+			}
 		}
 	}
 
@@ -501,8 +508,80 @@ public class VlcEngine extends MediaEngineBase
 
 	@Override
 	public boolean setSurfaceSize(VideoView view) {
-		if (source instanceof VideoSource) setSurfaceSize(view, (VideoSource) source);
+		if ((source instanceof VideoSource vs) && (vs.videoWidth > 0) && (vs.videoHeight > 0)) {
+			setSurfaceSize(view, vs);
+		} else if ((source != null) && (source.getItem() != null)) {
+			// VLC doesn't always report the video layout (e.g. for streams)
+			setStreamSurfaceSize(view);
+		}
 		return true;
+	}
+
+	/**
+	 * A source, that is not known to be a video when prepared (e.g. a TV stream). The picture is
+	 * rendered into the surface as is, so the surface gets the aspect ratio of the video track.
+	 */
+	private int streamSizeRetries;
+
+	private void setStreamSurfaceSize(VideoView view) {
+		int sw = view.getWidth();
+		int sh = view.getHeight();
+		if ((sw == 0) || (sh == 0)) return;
+		int scaleType = source.getItem().getPrefs().getVideoScalePref();
+		player.getVLCVout().setWindowSize(sw, sh);
+		VideoTrack t = player.getCurrentVideoTrack();
+
+		if ((t == null) || (t.width <= 0) || (t.height <= 0)) {
+			// The size of the stream's video becomes known some time after the playback is started,
+			// until then (or if it's never reported) the picture is shown as 16:9, not stretched
+			PlayableItem item = source.getItem();
+			if (streamSizeRetries++ < 40) App.get().getHandler().postDelayed(() -> {
+				if ((source != null) && (source.getItem() == item) && (videoView == view)) setSurfaceSize(view);
+			}, 250);
+			fitSurface(view, sw, sh, 16.0, 9.0, scaleType);
+			return;
+		}
+
+		streamSizeRetries = 0;
+
+		double vw = t.width;
+		double vh = t.height;
+		if ((t.orientation == VideoTrack.Orientation.LeftBottom) ||
+				(t.orientation == VideoTrack.Orientation.RightTop)) {
+			vw = t.height;
+			vh = t.width;
+		}
+		if ((t.sarNum > 0) && (t.sarDen > 0) && (t.sarNum != t.sarDen)) vw = vw * t.sarNum / t.sarDen;
+
+		fitSurface(view, sw, sh, vw, vh, scaleType);
+	}
+
+	private void fitSurface(VideoView view, int sw, int sh, double vw, double vh, int scaleType) {
+		double ar = vw / vh;
+		double dw = sw;
+		double dh = sh;
+		double dar = dw / dh;
+
+		switch (scaleType) {
+			case SCALE_FILL -> {
+				if (dar >= ar) dh = dw / ar;
+				else dw = dh * ar;
+			}
+			case SCALE_ORIGINAL -> {
+				dw = vw;
+				dh = vh;
+			}
+			default -> {
+				if (scaleType == SCALE_4_3) ar = 4.0 / 3.0;
+				else if (scaleType == SCALE_16_9) ar = 16.0 / 9.0;
+				if (dar < ar) dh = dw / ar;
+				else dw = dh * ar;
+			}
+		}
+
+		player.setScale(0);
+		player.setAspectRatio(null);
+		setSurfaceLayout(view, (int) Math.ceil(dw), (int) Math.ceil(dh));
 	}
 
 	private void setSurfaceSize(VideoView view, VideoSource src) {

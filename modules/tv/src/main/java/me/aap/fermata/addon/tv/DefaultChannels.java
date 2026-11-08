@@ -34,6 +34,7 @@ final class DefaultChannels {
 			new Playlist("polska", "Polska", R.raw.tv_polska),
 			new Playlist("world_news", "World News", R.raw.tv_world_news),
 			new Playlist("sport_music", "Sport & Music", R.raw.tv_sport_music),
+			new Playlist("europe", "Europe", R.raw.tv_europe),
 	};
 
 	private DefaultChannels() {

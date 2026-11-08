@@ -4,10 +4,22 @@ import static java.util.Objects.requireNonNull;
 import static me.aap.utils.async.Completed.completed;
 import static me.aap.utils.function.ResultConsumer.Cancel.isCancellation;
 
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.concurrent.CancellationException;
@@ -24,20 +36,170 @@ import me.aap.fermata.media.lib.MediaLib.Item;
 import me.aap.fermata.media.service.FermataServiceUiBinder;
 import me.aap.fermata.ui.activity.MainActivityDelegate;
 import me.aap.fermata.ui.fragment.MediaLibFragment;
+import me.aap.fermata.ui.view.DcViews;
 import me.aap.fermata.ui.view.MediaItemMenuHandler;
+import me.aap.fermata.ui.view.MediaItemView;
 import me.aap.utils.app.App;
 import me.aap.utils.async.FutureSupplier;
 import me.aap.utils.log.Log;
 import me.aap.utils.ui.UiUtils;
-import me.aap.utils.ui.fragment.ActivityFragment;
 import me.aap.utils.ui.menu.OverlayMenu;
 import me.aap.utils.ui.menu.OverlayMenuItem;
 import me.aap.utils.ui.view.FloatingButton;
+import me.aap.utils.ui.view.ToolBarView;
 
 /**
  * @author Andrey Pavlenko
  */
 public class TvFragment extends MediaLibFragment {
+	// The last selected playlist, shown when TV is opened
+	private static String selectedPlaylistId;
+	private FrameLayout headerHolder;
+	private HorizontalScrollView chipsScroll;
+	private LinearLayout chips;
+	private TextView emptyView;
+
+	@Override
+	public ToolBarView.Mediator getToolBarMediator() {
+		// The screen has its own header: the title, the playlists and Add playlist
+		return ToolBarView.Mediator.Invisible.instance;
+	}
+
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+													 @Nullable Bundle savedInstanceState) {
+		View list = super.onCreateView(inflater, container, savedInstanceState);
+		Context ctx = inflater.getContext();
+		LinearLayout root = new LinearLayout(ctx);
+		root.setOrientation(LinearLayout.VERTICAL);
+		headerHolder = new FrameLayout(ctx);
+		root.addView(headerHolder, DcViews.matchWidth());
+
+		chips = new LinearLayout(ctx);
+		chips.setOrientation(LinearLayout.HORIZONTAL);
+		int pad = UiUtils.toIntPx(ctx, 16);
+		chips.setPadding(pad, UiUtils.toIntPx(ctx, 8), pad, UiUtils.toIntPx(ctx, 8));
+		chipsScroll = new HorizontalScrollView(ctx);
+		chipsScroll.setHorizontalScrollBarEnabled(false);
+		chipsScroll.setFillViewport(false);
+		chipsScroll.addView(chips);
+
+		emptyView = new TextView(ctx);
+		emptyView.setText(R.string.tv_no_playlists);
+		emptyView.setTextSize(16);
+		emptyView.setGravity(Gravity.CENTER);
+		emptyView.setTextColor(DcViews.color(ctx, me.aap.fermata.R.color.dc_muted));
+		emptyView.setPadding(pad * 2, pad * 2, pad * 2, pad * 2);
+		emptyView.setVisibility(View.GONE);
+
+		if (!isCar(ctx)) root.addView(chipsScroll, DcViews.matchWidth());
+		root.addView(emptyView, DcViews.matchWidth());
+		root.addView(list, new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1));
+		return root;
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		getListView().setForcedGrid(isCar(view.getContext()));
+		super.onViewCreated(view, savedInstanceState);
+		updateHeader();
+	}
+
+	private static boolean isCar(Context ctx) {
+		return MainActivityDelegate.get(ctx).isCarActivity();
+	}
+
+	/**
+	 * The playlist, that contains the item, or null for the root.
+	 */
+	@Nullable
+	private static BrowsableItem getPlaylist(@Nullable BrowsableItem i) {
+		while (i != null) {
+			BrowsableItem p = i.getParent();
+			if (p instanceof TvRootItem) return i;
+			i = p;
+		}
+		return null;
+	}
+
+	private void updateHeader() {
+		if ((headerHolder == null) || (getAdapter() == null)) return;
+		Context ctx = headerHolder.getContext();
+		BrowsableItem parent = getAdapter().getParent();
+		BrowsableItem playlist = getPlaylist(parent);
+		boolean inGroup = (playlist != null) && (parent != playlist);
+		LinearLayout h = DcViews.header(ctx, inGroup ? parent.getName() : getFragmentTitle(),
+				inGroup ? () -> onBackPressed() : null);
+
+		if (!inGroup) {
+			if (isCar(ctx)) {
+				// In the car the playlists are next to the title, to leave the space for the channels
+				View title = h.findViewById(me.aap.fermata.R.id.dc_header_title);
+				title.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+				ViewGroup p = (ViewGroup) chipsScroll.getParent();
+				if (p != null) p.removeView(chipsScroll);
+				chips.setPadding(UiUtils.toIntPx(ctx, 12), 0, 0, 0);
+				h.addView(chipsScroll, new LinearLayout.LayoutParams(0, WRAP_CONTENT, 1));
+			}
+			DcViews.addAction(h, DcViews.pillButton(ctx, me.aap.fermata.R.drawable.dc_plus,
+					me.aap.fermata.R.color.dc_tv, getString(R.string.tv_add_playlist), v -> addSource()));
+		}
+
+		headerHolder.removeAllViews();
+		headerHolder.addView(h);
+		chipsScroll.setVisibility(inGroup ? View.GONE : View.VISIBLE);
+		if (!inGroup) updateChips(playlist);
+	}
+
+	private void updateChips(@Nullable BrowsableItem selected) {
+		TvRootItem root = getRootItem();
+		root.getUnsortedChildren().main().onSuccess(list -> {
+			if (chips == null) return;
+			Context ctx = chips.getContext();
+			chips.removeAllViews();
+			emptyView.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
+			int tv = DcViews.color(ctx, me.aap.fermata.R.color.dc_tv);
+			View sel = null;
+
+			for (Item i : list) {
+				if (!(i instanceof BrowsableItem b)) continue;
+				boolean isSel = b.equals(selected);
+				TextView c = DcViews.chip(ctx, b.getName(), isSel, tv, v -> selectPlaylist(b));
+				c.setOnLongClickListener(v -> {
+					showPlaylistMenu(b);
+					return true;
+				});
+				LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+				lp.setMarginEnd(UiUtils.toIntPx(ctx, 8));
+				chips.addView(c, lp);
+				if (isSel) sel = c;
+			}
+
+			if (sel != null) {
+				View s = sel;
+				chipsScroll.post(() -> chipsScroll.requestChildRectangleOnScreen(s,
+						new android.graphics.Rect(0, 0, s.getWidth(), s.getHeight()), false));
+			}
+		});
+	}
+
+	private void selectPlaylist(BrowsableItem playlist) {
+		selectedPlaylistId = playlist.getId();
+		getAdapter().setParent(playlist);
+	}
+
+	/**
+	 * Long press on a playlist chip: edit or delete the playlist.
+	 */
+	private void showPlaylistMenu(BrowsableItem playlist) {
+		getMainActivity().getContextMenu().show(b -> {
+			b.setTitle(playlist.getName());
+			b.addItem(me.aap.fermata.R.id.edit, me.aap.fermata.R.drawable.edit,
+					me.aap.fermata.R.string.edit).setData(playlist).setHandler(this::contextMenuItemSelected);
+			b.addItem(me.aap.fermata.R.id.delete, me.aap.fermata.R.drawable.delete,
+					me.aap.fermata.R.string.delete).setData(playlist).setHandler(this::contextMenuItemSelected);
+		});
+	}
 
 	@Override
 	protected ListAdapter createAdapter(FermataServiceUiBinder b) {
@@ -64,19 +226,18 @@ public class TvFragment extends MediaLibFragment {
 	}
 
 	@Override
-	public void onHiddenChanged(boolean hidden) {
-		super.onHiddenChanged(hidden);
-		if (hidden) return;
-
-		TvAdapter a = getAdapter();
-		if (a != null) a.animateAddButton(a.getParent());
+	public boolean isRootPage() {
+		return isRootItem();
 	}
 
 	@Override
-	public void switchingTo(@NonNull ActivityFragment newFragment) {
-		super.switchingTo(newFragment);
-		getMainActivity().getFloatingButton().clearAnimation();
+	public boolean onBackPressed() {
+		// The playlists are switched with the chips, back from a playlist goes Home
+		if ((getAdapter() != null) && isRootItem() && !getMainActivity().isVideoMode())
+			return false;
+		return super.onBackPressed();
 	}
+
 
 	public void addSource() {
 		TvM3uFileSystemProvider prov = new TvM3uFileSystemProvider();
@@ -116,7 +277,9 @@ public class TvFragment extends MediaLibFragment {
 					});
 		} else if (id == me.aap.fermata.R.id.delete) {
 			TvRootItem root = getRootItem();
-			root.removeItem(item.getData()).onSuccess(v -> getAdapter().setParent(root));
+			TvM3uItem i = item.getData();
+			if (i.getId().equals(selectedPlaylistId)) selectedPlaylistId = null;
+			root.removeItem(i).onSuccess(v -> getAdapter().setParent(root));
 		}
 		return true;
 	}
@@ -125,17 +288,8 @@ public class TvFragment extends MediaLibFragment {
 	public void contributeToNavBarMenu(OverlayMenu.Builder builder) {
 		super.contributeToNavBarMenu(builder);
 
-		if (isRootItem()) {
-			// Otherwise provided by the floating button, that is hidden in the car
-			if (getMainActivity().getFloatingButton().isHidden()) {
-				builder.addItem(R.id.tv_add_source, R.drawable.tv_add, R.string.add_tv_source)
-						.setHandler(i -> {
-							addSource();
-							return true;
-						});
-			}
-			return;
-		}
+		// Add playlist is in the header
+		if (getAdapter().getParent() instanceof TvRootItem) return;
 
 		TvAdapter a = getAdapter();
 
@@ -175,25 +329,54 @@ public class TvFragment extends MediaLibFragment {
 		});
 	}
 
+	/**
+	 * The root or a playlist (the playlists are selected with the chips).
+	 */
 	private boolean isRootItem() {
 		BrowsableItem p = getAdapter().getParent();
-		return (p == null) || (p instanceof TvRootItem);
+		return (p == null) || (p instanceof TvRootItem) || (p.getParent() instanceof TvRootItem);
 	}
 
 	private class TvAdapter extends ListAdapter {
 
 		TvAdapter(MainActivityDelegate activity, BrowsableItem parent) {
 			super(activity, parent);
-			animateAddButton(parent);
+			openPlaylist(parent);
 		}
 
 		@Override
 		public FutureSupplier<?> setParent(BrowsableItem parent, boolean userAction) {
-			return super.setParent(parent, userAction).onSuccess(v -> animateAddButton(parent));
+			FutureSupplier<?> f = super.setParent(parent, userAction);
+			updateHeader();
+			openPlaylist(parent);
+			return f;
+		}
+
+		@Override
+		protected void onItemViewCreated(MediaItemView v) {
+			v.setCardStyle(true, getListView().isGrid());
+		}
+
+		/**
+		 * The list of the playlists is not shown, the selected (or the first) playlist is opened.
+		 */
+		private void openPlaylist(BrowsableItem parent) {
+			if (!(parent instanceof TvRootItem)) return;
+			parent.getUnsortedChildren().main().onSuccess(c -> {
+				if ((getParent() != parent) || c.isEmpty()) return;
+				Item open = c.get(0);
+				for (Item i : c) {
+					if (i.getId().equals(selectedPlaylistId)) {
+						open = i;
+						break;
+					}
+				}
+				if (open instanceof BrowsableItem b) setParent(b);
+			});
 		}
 
 		public boolean isLongPressDragEnabled() {
-			return isRootItem();
+			return false;
 		}
 
 		@Override
@@ -208,20 +391,6 @@ public class TvFragment extends MediaLibFragment {
 			BrowsableItem i = getAdapter().getParent();
 			if (i instanceof MediaLib.Folders) ((MediaLib.Folders) i).moveItem(fromPosition, toPosition);
 			return super.onItemMove(fromPosition, toPosition);
-		}
-
-		private void animateAddButton(BrowsableItem parent) {
-			if (!(parent instanceof TvRootItem)) return;
-
-			parent.getUnsortedChildren().onSuccess(c -> {
-				if (!c.isEmpty()) return;
-
-				FloatingButton fb = getMainActivity().getFloatingButton();
-				fb.requestFocus();
-				Animation shake =
-						AnimationUtils.loadAnimation(getContext(), me.aap.utils.R.anim.shake_y_20);
-				fb.startAnimation(shake);
-			});
 		}
 	}
 }

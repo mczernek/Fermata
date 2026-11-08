@@ -1,5 +1,7 @@
 package me.aap.fermata.ui.fragment;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.N;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -27,6 +29,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -69,6 +73,7 @@ import me.aap.fermata.ui.activity.MainActivityDelegate;
 import me.aap.fermata.ui.activity.MainActivityListener;
 import me.aap.fermata.ui.activity.MainActivityPrefs;
 import me.aap.fermata.util.Utils;
+import me.aap.fermata.ui.view.DcViews;
 import me.aap.utils.app.App;
 import me.aap.utils.collection.CollectionUtils;
 import me.aap.utils.function.BooleanSupplier;
@@ -85,6 +90,7 @@ import me.aap.utils.pref.PreferenceStore.Pref;
 import me.aap.utils.pref.PreferenceView;
 import me.aap.utils.pref.PreferenceViewAdapter;
 import me.aap.utils.ui.UiUtils;
+import me.aap.utils.ui.view.ToolBarView;
 import me.aap.utils.ui.fragment.FilePickerFragment;
 import me.aap.utils.vfs.local.LocalFileSystem;
 
@@ -94,6 +100,7 @@ import me.aap.utils.vfs.local.LocalFileSystem;
 public class SettingsFragment extends MainActivityFragment
 		implements MainActivityListener, PreferenceStore.Listener {
 	private PreferenceViewAdapter adapter;
+	private FrameLayout header;
 
 	@Override
 	public int getFragmentId() {
@@ -112,11 +119,35 @@ public class SettingsFragment extends MainActivityFragment
 		return getResources().getString(R.string.settings);
 	}
 
+	@Override
+	public ToolBarView.Mediator getToolBarMediator() {
+		// The screen has its own header with the title and the back button
+		return ToolBarView.Mediator.Invisible.instance;
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
 													 @Nullable Bundle savedInstanceState) {
-		return inflater.inflate(me.aap.utils.R.layout.pref_list_view, container, false);
+		View list = inflater.inflate(me.aap.utils.R.layout.pref_list_view, container, false);
+		Context ctx = inflater.getContext();
+		LinearLayout root = new LinearLayout(ctx);
+		root.setOrientation(LinearLayout.VERTICAL);
+		header = new FrameLayout(ctx);
+		root.addView(header, DcViews.matchWidth());
+		int pad = UiUtils.toIntPx(ctx, 8);
+		list.setPadding(0, pad, 0, pad * 3);
+		((ViewGroup) list).setClipToPadding(false);
+		root.addView(list, new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1));
+		updateHeader();
+		return root;
+	}
+
+	private void updateHeader() {
+		if (header == null) return;
+		boolean root = isRootPage();
+		header.removeAllViews();
+		header.addView(DcViews.header(header.getContext(), getTitle(), root ? null : this::onBackPressed));
 	}
 
 	@Override
@@ -129,6 +160,7 @@ public class SettingsFragment extends MainActivityFragment
 		super.onViewCreated(view, state);
 		MainActivityDelegate.getActivityDelegate(requireContext()).onSuccess(a -> {
 			adapter = createAdapter(a);
+			adapter.setOnSetChangedListener(this::updateHeader);
 			a.addBroadcastListener(this);
 			a.getPrefs().addBroadcastListener(this);
 
@@ -141,6 +173,7 @@ public class SettingsFragment extends MainActivityFragment
 				PreferenceSet p = adapter.getPreferenceSet().find(state.getInt("id", ID_NULL));
 				if (p != null) adapter.setPreferenceSet(p);
 			}
+			updateHeader();
 		});
 	}
 
@@ -729,7 +762,8 @@ public class SettingsFragment extends MainActivityFragment
 				o.title = R.string.use_dpad_cursor;
 			});
 		}
-		ps.addListPref(o -> {
+		// The navigation bar is never shown on the phone, only in the car (if the car home is disabled)
+		if (nbPos != MainActivityPrefs.NAV_BAR_POS) ps.addListPref(o -> {
 			o.store = a.getPrefs();
 			o.pref = nbPos;
 			o.title = R.string.nav_bar_pos;
@@ -738,7 +772,7 @@ public class SettingsFragment extends MainActivityFragment
 			o.values = new int[]{R.string.nav_bar_pos_bottom, R.string.nav_bar_pos_left,
 					R.string.nav_bar_pos_right};
 		});
-		ps.addFloatPref(o -> {
+		if (nbSize != MainActivityPrefs.NAV_BAR_SIZE) ps.addFloatPref(o -> {
 			o.store = a.getPrefs();
 			o.pref = nbSize;
 			o.title = R.string.nav_bar_size;

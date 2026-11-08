@@ -62,17 +62,17 @@ Request upload key reset); the app signing key itself is managed by Google.
   `fermata/src/auto/res/xml/automotive_app_desc.xml` (upstream disabled it, as it may conflict
   with the media service since AA 17.3). Android Auto must have "Unknown sources" enabled in its
   developer settings to list them.
-* "Youtube Full Screen", "Disney+ Full Screen", "CANAL+ online Full Screen", "TV Full Screen" and "Web browser Full Screen" Android Auto
+* "Youtube Full Screen", "Disney+ Full Screen", "CANAL+ online Full Screen", "TVP VOD Full Screen", "TV Full Screen" and "Web browser Full Screen" Android Auto
   apps - the same full screen UI, opened on another initial screen (`YoutubeCarService`,
-  `DisneyCarService`, `CanalPlusCarService`, `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
+  `DisneyCarService`, `CanalPlusCarService`, `TvpVodCarService`, `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
   get the whole screen. All of them share one UI, so switching between them keeps the state. Home
   always opens the home screen with tiles. Android Auto requires an action strip, so it only has
   Menu (and Pan, for scrolling). In the split screen, tap the app icon in the Android Auto rail to get back to the
   full screen. The `web` and `tv` modules are delivered at install time, so they are always
   available.
-* "Youtube", "Disney+", "CANAL+ online", "TV" and "Web browser" Android Auto apps - the regular, projection based versions
+* "Youtube", "Disney+", "CANAL+ online", "TVP VOD", "TV" and "Web browser" Android Auto apps - the regular, projection based versions
   (not navigation apps), shown in the split screen like Fermata itself
-  (`YoutubeCarActivityService`, `DisneyCarActivityService`, `CanalPlusCarActivityService`, `TvCarActivityService`, `WebBrowserCarActivityService`,
+  (`YoutubeCarActivityService`, `DisneyCarActivityService`, `CanalPlusCarActivityService`, `TvpVodCarActivityService`, `TvCarActivityService`, `WebBrowserCarActivityService`,
   `MainCarActivity.getInitialAddon()`).
 * No floating button. Its actions are on the navigation panel (`NavPanel`) - Home, Back and Menu
   in one panel, the same on the phone, in the projection based and in the full screen car apps,
@@ -97,6 +97,7 @@ Request upload key reset); the app signing key itself is managed by Google.
     stretched to the player area. Sign-in requires the one-time code, sent by email.
   * CANAL+ online (`.../canal`): the bot protection of the login pages (`pass.canalplus.com`,
     `pass.canal-plus.com`) rejects desktop Chrome on a phone, so they are loaded as mobile Chrome.
+  * TVP VOD (`.../tvp`): vod.tvp.pl as desktop Chrome, the mobile site asks to install the app.
 * Default TV channels: free, official streams in `modules/tv/src/main/res/raw/tv_*.m3u`, each
   added once as a TV source ("Polska", "World News", "Sport & Music"). The local copies are
   refreshed on every version code change, so edit these files and release to update the lists.

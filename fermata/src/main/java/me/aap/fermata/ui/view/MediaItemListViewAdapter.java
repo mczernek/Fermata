@@ -198,7 +198,15 @@ public class MediaItemListViewAdapter extends MovableRecyclerViewAdapter<MediaIt
 				.inflate(R.layout.media_item_view, parent, false);
 		v.setClickable(true);
 		v.setOnClickListener(this);
-		return new MediaItemViewHolder(v, getListView());
+		MediaItemViewHolder h = new MediaItemViewHolder(v, getListView());
+		onItemViewCreated(v);
+		return h;
+	}
+
+	/**
+	 * Allows to customize the item views, e.g. {@link MediaItemView#setCardStyle(boolean, boolean)}.
+	 */
+	protected void onItemViewCreated(MediaItemView v) {
 	}
 
 	@Override

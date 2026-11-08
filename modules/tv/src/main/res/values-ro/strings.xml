@@ -16,4 +16,6 @@
     <string name="catchup_days">Numărul de zile</string>
     <string name="connection_settings">Setări de conectare</string>
     <string name="err_failed_to_add_tv_source">Nu s-a putut adăuga sursa: %1$s</string>
+    <string name="tv_add_playlist">Adaugă playlist</string>
+    <string name="tv_no_playlists">Nicio listă TV încă. Adaugă o listă M3U pentru a urmări canale live.</string>
 </resources>

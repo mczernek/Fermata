@@ -56,6 +56,33 @@
         <item name="textAppearanceSubtitle1">@style/TextAppearance.DashCinema.Subtitle1</item>
         <item name="textAppearanceHeadline6">@style/TextAppearance.DashCinema.Headline6</item>
         <item name="textAppearanceButton">@style/TextAppearance.DashCinema.Button</item>
+
+        <!-- Settings: rounded cards with large bold titles and muted subtitles -->
+        <item name="android:preferenceStyle">@style/AppTheme.DashCinema.PreferenceStyle</item>
+        <item name="prefItemBackground">@drawable/dc_pref_item_bg</item>
+        <item name="prefItemMarginHorizontal">16dp</item>
+        <item name="prefItemMarginVertical">5dp</item>
+        <item name="prefItemPadding">14dp</item>
+    </style>
+
+    <style name="AppTheme.DashCinema.PreferenceStyle" parent="Theme.Utils.Base.PreferenceStyle">
+        <item name="android:textColor">@color/dc_cream</item>
+        <item name="subtitleTextColor">@color/dc_muted</item>
+        <item name="tint">@color/dc_orange</item>
+        <item name="titleTextAppearance">@style/TextAppearance.DashCinema.PrefTitle</item>
+        <item name="subtitleTextAppearance">@style/TextAppearance.DashCinema.PrefSubtitle</item>
+    </style>
+
+    <style name="TextAppearance.DashCinema.PrefTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_extrabold</item>
+        <item name="fontFamily">@font/plus_jakarta_sans_extrabold</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="TextAppearance.DashCinema.PrefSubtitle" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:fontFamily">@font/plus_jakarta_sans</item>
+        <item name="fontFamily">@font/plus_jakarta_sans</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="AppTheme.DashCinema.SeekBarStyle" parent="AppTheme.SeekBarStyle">
