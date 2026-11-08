@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The generic "C+" glyph of the addon, scaled to the adaptive icon safe zone -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="2.5"
+        android:scaleY="2.5"
+        android:translateX="24"
+        android:translateY="24">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M12.5,7.6C11.6,6.9 10.5,6.5 9.2,6.5 6.4,6.5 4.5,8.8 4.5,12s1.9,5.5 4.7,5.5c1.3,0 2.4,-0.4 3.3,-1.1l1.3,1.8C12.5,19.3 10.9,19.9 9.2,19.9 5,19.9 2,16.6 2,12s3,-7.9 7.2,-7.9c1.7,0 3.3,0.6 4.6,1.7Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M17.5,8h2v3h3v2h-3v3h-2v-3h-3v-2h3Z" />
+    </group>
+</vector>

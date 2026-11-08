@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 
 import me.aap.fermata.addon.AddonManager;
 import me.aap.fermata.addon.web.FermataChromeClient;
-import me.aap.fermata.addon.web.FermataWebClient;
+import me.aap.fermata.addon.web.desktop.DesktopChromeWebClient;
 import me.aap.fermata.addon.web.R;
 import me.aap.fermata.addon.web.WebBrowserAddon;
 import me.aap.fermata.addon.web.WebBrowserFragment;
@@ -48,7 +48,8 @@ public class DisneyFragment extends WebBrowserFragment {
 
 		DisneyWebView webView = view.findViewById(R.id.dpWebView);
 		ViewGroup fullScreenView = view.findViewById(R.id.dpFullScreenView);
-		webView.init(addon, new FermataWebClient(), new FermataChromeClient(webView, fullScreenView));
+		webView.init(addon, new DesktopChromeWebClient(),
+				new FermataChromeClient(webView, fullScreenView));
 		webView.loadUrl((state != null) ? state.getString("url", DEFAULT_URL) : DEFAULT_URL);
 		MainActivityDelegate.getActivityDelegate(view.getContext()).onSuccess(this::registerListeners);
 	}
