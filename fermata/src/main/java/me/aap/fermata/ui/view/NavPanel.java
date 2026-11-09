@@ -127,6 +127,11 @@ public final class NavPanel extends LinearLayout {
 	 * Shows the panel and restarts the hide timer. Called on any user interaction.
 	 */
 	public void show() {
+		// Not over the full screen video of a web site, its player has its own controls
+		if (activity.isSiteVideoMode()) {
+			hide();
+			return;
+		}
 		updateTopMargin();
 		removeCallbacks(hide);
 		postDelayed(hide, HIDE_DELAY);

@@ -61,7 +61,12 @@ public class YoutubeChromeClient extends FermataChromeClient {
 		return (st == STATE_PLAYING) || (st == STATE_PAUSED);
 	}
 
+	/**
+	 * The touches go to the YouTube player, so its own controls (including the quality settings)
+	 * are shown, not the DashCinema control panel.
+	 */
+	@Override
 	protected boolean onTouchEvent(View v, MotionEvent event) {
-		return isFullScreen() && getFullScreenView().onTouchEvent(event);
+		return false;
 	}
 }

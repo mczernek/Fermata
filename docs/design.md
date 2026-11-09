@@ -132,6 +132,12 @@ backdrop (`dc_scrim`, tap outside closes). Dialog buttons are at least 56dp tall
 
 ## Player
 
+Full screen video of a web site (all the streaming addons and the Web browser) has no overlay of
+ours: no control panel, no title, no navigation panel. The site's player has its own controls
+(quality, captions, ...) and gets all the touches; Back or its own button leaves the full screen.
+The DashCinema control panel and the navigation panel are only for the media we play ourselves
+(My media, TV).
+
 Video keeps its aspect ratio. VLC doesn't report the video layout for streams: the surface gets
 the ratio of the video track, 16:9 until the track is known.
 

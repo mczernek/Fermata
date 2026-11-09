@@ -245,7 +245,7 @@ public class ControlPanelView extends ConstraintLayout
 
 		View info = (v != null) ? v.getVideoInfoView() : null;
 		View fb = a.getFloatingButton();
-		int delay = getStartDelay();
+		int delay = a.isSiteVideoMode() ? 0 : getStartDelay();
 
 		if (delay == 0) {
 			fb.setVisibility(GONE);
@@ -383,7 +383,7 @@ public class ControlPanelView extends ConstraintLayout
 		}
 
 		int delay = getTouchDelay();
-		if (delay == 0) return false;
+		if ((delay == 0) || a.isSiteVideoMode()) return false;
 
 		View info = video.getVideoInfoView();
 		View fb = a.getFloatingButton();
@@ -414,6 +414,7 @@ public class ControlPanelView extends ConstraintLayout
 
 	public void onVideoSeek() {
 		MainActivityDelegate a = getActivity();
+		if (a.isSiteVideoMode()) return;
 		VideoView vv = a.getMediaServiceBinder().getMediaSessionCallback().getVideoView();
 
 		if (vv == null) {

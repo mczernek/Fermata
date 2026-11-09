@@ -174,6 +174,7 @@ public class MainActivityDelegate extends ActivityDelegate
 	private FutureSupplier<?> contentLoading;
 	private boolean barsHidden;
 	private boolean videoMode;
+	private boolean siteVideoMode;
 	private int brightness = 255;
 	private SpeechListener speechListener;
 	private VoiceCommandHandler voiceCommandHandler;
@@ -659,11 +660,15 @@ public class MainActivityDelegate extends ActivityDelegate
 
 		if (videoMode) {
 			this.videoMode = true;
+			// A web site's player (v == null, or a view with its own controls): no overlay
+			siteVideoMode = (v == null) || v.hasOwnControls();
+			if (siteVideoMode && (navPanel != null)) navPanel.hide();
 			setSystemUiVisibility();
 			keepScreenOn(true);
 			cp.enableVideoMode(v);
 		} else {
 			this.videoMode = false;
+			siteVideoMode = false;
 			setSystemUiVisibility();
 			keepScreenOn(false);
 			if (cp != null) cp.disableVideoMode();
@@ -728,6 +733,14 @@ public class MainActivityDelegate extends ActivityDelegate
 
 	public boolean isVideoMode() {
 		return videoMode;
+	}
+
+	/**
+	 * A web site's video is in full screen. The site's player has its own controls, so neither the
+	 * control panel nor the navigation panel are shown over it.
+	 */
+	public boolean isSiteVideoMode() {
+		return videoMode && siteVideoMode;
 	}
 
 	public void setContentLoading(FutureSupplier<?> contentLoading) {

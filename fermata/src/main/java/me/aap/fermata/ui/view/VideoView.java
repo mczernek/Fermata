@@ -190,6 +190,15 @@ public class VideoView extends FrameLayout
 		clock.setLayoutParams(lp);
 	}
 
+	/**
+	 * Whether the video has its own controls, e.g. the player of a web site. Then DashCinema shows
+	 * no overlay over it (no control panel, no title, no navigation panel) and the touches go to
+	 * the video.
+	 */
+	public boolean hasOwnControls() {
+		return false;
+	}
+
 	@Nullable
 	public VideoInfoView getVideoInfoView() {
 		return (VideoInfoView) getChildAt(2);

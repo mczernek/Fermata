@@ -82,6 +82,12 @@ Request upload key reset); the app signing key itself is managed by Google.
   get the touch position of a drag, so the panel has a move button there: tap it, then tap the
   screen near the target corner. Long click on Menu starts the voice assistant, if "Voice control
   with the floating button" is enabled. TV: "Add M3U IPTV source" moved to the menu.
+* Full screen video of the streaming sites (YouTube, Disney+, CANAL+ online, TVP VOD, player.pl,
+  Web browser) has no DashCinema overlay: no control panel, no title, no navigation panel
+  (`MainActivityDelegate.isSiteVideoMode()`, `VideoView.hasOwnControls()`). The touches go to the
+  site's own player, so its controls work - e.g. the YouTube quality, speed and captions settings
+  (before, the YouTube video view took the touches and showed the Fermata control panel instead).
+  Back or the player's own button leaves the full screen.
 * YouTube: the automatic full screen on playback clicks the player's own full screen button
   (falls back to the full screen of the player, not the video element, which broke the aspect
   ratio). It can be disabled: YouTube settings -> Open videos in full screen.

@@ -34,6 +34,14 @@ public class YoutubeVideoView extends VideoView {
 		return (VideoInfoView) getChildAt(1);
 	}
 
+	/**
+	 * The YouTube player has its own controls (play/pause, seek, quality, captions).
+	 */
+	@Override
+	public boolean hasOwnControls() {
+		return true;
+	}
+
 	@Nullable
 	@Override
 	public SurfaceView getSubtitleSurface() {
