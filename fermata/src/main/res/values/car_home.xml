@@ -23,4 +23,6 @@
     <string name="home_my_media_sub">Folders, favorites, playlists</string>
     <string name="voice_assistant">Voice</string>
     <string name="app_version">Version</string>
+    <string name="car_home_items">Android Auto home screen</string>
+    <string name="car_home_items_sub">Choose the tiles shown on the home screen in the car</string>
 </resources>

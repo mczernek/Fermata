@@ -36,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import me.aap.fermata.BuildConfig;
 import me.aap.fermata.R;
@@ -45,6 +46,8 @@ import me.aap.fermata.addon.FermataAddon;
 import me.aap.fermata.addon.FermataFragmentAddon;
 import me.aap.fermata.ui.activity.MainActivityDelegate;
 import me.aap.fermata.ui.view.DcViews;
+import me.aap.fermata.ui.activity.MainActivityPrefs;
+import me.aap.utils.pref.PreferenceStore;
 import me.aap.utils.ui.UiUtils;
 import me.aap.utils.ui.fragment.ActivityFragment;
 import me.aap.utils.ui.view.FloatingButton;
@@ -57,7 +60,8 @@ import me.aap.utils.ui.view.ToolBarView;
  * <p>
  * Settings, About and Exit are in the menu of the navigation bar / panel.
  */
-public class CarHomeFragment extends MainActivityFragment implements AddonManager.Listener {
+public class CarHomeFragment extends MainActivityFragment
+		implements AddonManager.Listener, PreferenceStore.Listener {
 	private static final String TV_ADDON = "me.aap.fermata.addon.tv.TvAddon";
 	private static final String STREAMING_PKG = "me.aap.fermata.addon.web.";
 	private static final String BROWSER_ADDON = "me.aap.fermata.addon.web.WebBrowserAddon";
@@ -65,6 +69,8 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 	private static final int GAP_DP = 12;
 	// Grid spans per column, so that 2, 3 or 4 groups share a row evenly
 	private static final int SPANS = 12;
+	// The grid spans, when everything fits on one screen: rows of 1 to 5 tiles share a row evenly
+	private static final int FIT_SPANS = 60;
 	private final HomeAdapter adapter = new HomeAdapter();
 
 	@Override
@@ -98,12 +104,14 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		AddonManager.get().addBroadcastListener(this);
+		MainActivityPrefs.get().addBroadcastListener(this);
 		reload();
 	}
 
 	@Override
 	public void onDestroyView() {
 		AddonManager.get().removeBroadcastListener(this);
+		MainActivityPrefs.get().removeBroadcastListener(this);
 		super.onDestroyView();
 	}
 
@@ -116,6 +124,12 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 	@Override
 	public void onAddonChanged(AddonManager mgr, AddonInfo info, boolean installed) {
 		reload();
+	}
+
+	@Override
+	public void onPreferenceChanged(PreferenceStore store, List<PreferenceStore.Pref<?>> prefs) {
+		// The tiles, chosen in the settings on the phone
+		if ((getView() != null) && getActivityDelegate().isCarActivity()) reload();
 	}
 
 	private void reload() {
@@ -132,9 +146,13 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		List<Item> more = new ArrayList<>();
 		Item browser = null;
 		AddonManager amgr = AddonManager.get();
+		boolean car = a.isCarActivity();
+		// In the car, only the tiles chosen in the settings
+		Predicate<String> shown = k -> !car || a.getPrefs().getCarHomeItemPref(k);
 
 		for (AddonInfo ai : BuildConfig.ADDONS) {
 			if (!(amgr.getAddon(ai.className) instanceof FermataFragmentAddon fa)) continue;
+			if (!shown.test(ai.className)) continue;
 			int id = fa.getFragmentId();
 			Runnable open = () -> a.showFragment(id);
 
@@ -154,7 +172,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 			}
 		}
 
-		groups.add(new Item(Item.GROUP, me.aap.utils.R.drawable.folder, R.string.home_my_media,
+		if (shown.test(MainActivityPrefs.CAR_HOME_ITEM_MY_MEDIA)) groups.add(new Item(Item.GROUP, me.aap.utils.R.drawable.folder, R.string.home_my_media,
 				R.string.home_my_media_sub, R.color.dc_media, R.color.dc_media_dim, R.color.dc_media_text,
 				() -> {
 					a.selectNavItem(R.id.folders_fragment);
@@ -162,12 +180,12 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 				}));
 		if (browser != null) groups.add(browser);
 
-		if (a.getPrefs().getVoiceControlEnabledPref()) {
+		if (a.getPrefs().getVoiceControlEnabledPref() &&
+				shown.test(MainActivityPrefs.CAR_HOME_ITEM_VOICE)) {
 			more.add(new Item(Item.SMALL, R.drawable.record_voice, R.string.voice_assistant, 0,
 					R.color.dc_other, R.color.dc_other_dim, 0, a::startVoiceAssistant));
 		}
 
-		boolean car = a.isCarActivity();
 		List<Item> items = new ArrayList<>();
 		items.add(new Item(Item.HEADER, 0, 0, 0, 0, 0, 0, null));
 		if (!streaming.isEmpty()) {
@@ -193,6 +211,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		if (className.endsWith(".DisneyAddon")) return R.color.dc_disney;
 		if (className.endsWith(".CanalPlusAddon")) return R.color.dc_canal;
 		if (className.endsWith(".TvpVodAddon")) return R.color.dc_tvp;
+		if (className.endsWith(".PlayerPlAddon")) return R.color.dc_player_pl;
 		if (className.endsWith(".WebBrowserAddon")) return R.color.dc_web;
 		return R.color.dc_other;
 	}
@@ -233,6 +252,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		private final HomeAdapter adapter;
 		private final GridLayoutManager lm;
 		private final int gap;
+		private int cols = 2;
 
 		HomeGrid(Context ctx, HomeAdapter adapter) {
 			super(ctx);
@@ -243,9 +263,9 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 				@Override
 				public int getSpanSize(int position) {
 					int spans = lm.getSpanCount();
-					int cols = spans / SPANS;
 					return switch (adapter.getItemViewType(position)) {
-						case Item.SERVICE, Item.SMALL -> SPANS;
+						case Item.SERVICE -> spans / adapter.serviceRowSize(position, cols);
+						case Item.SMALL -> spans / cols;
 						// On wide screens all the groups are in one row
 						case Item.GROUP -> (cols <= 2) ? spans : spans / Math.max(1, adapter.count(Item.GROUP));
 						default -> spans;
@@ -273,18 +293,20 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 			Context ctx = getContext();
 			int w = MeasureSpec.getSize(widthSpec);
 			int h = MeasureSpec.getSize(heightSpec);
-			int cols = (w >= UiUtils.toIntPx(ctx, WIDE_DP)) ? 4 : 2;
-			if (lm.getSpanCount() != cols * SPANS) lm.setSpanCount(cols * SPANS);
-
+			cols = (w >= UiUtils.toIntPx(ctx, WIDE_DP)) ? 4 : 2;
 			int service = UiUtils.toIntPx(ctx, 128);
 			int group = UiUtils.toIntPx(ctx, 80);
 
 			// In the car and on wide, short screens (landscape) everything fits on one screen
 			boolean fit = adapter.car || ((h > 0) && (w > h));
+			int spans = fit ? FIT_SPANS : cols * SPANS;
+			if (lm.getSpanCount() != spans) lm.setSpanCount(spans);
+			// Very wide car screens have room for 5 services in a row
+			int maxPerRow = (fit && (cols == 4) && (h > 0) && (w >= h * 12 / 5)) ? 5 : cols;
 
 			if (fit && (h > 0)) {
 				// Fill the screen: the header, the service rows and one row of the groups
-				int rows = (adapter.count(Item.SERVICE) + cols - 1) / cols;
+				int rows = HomeAdapter.rows(adapter.count(Item.SERVICE), maxPerRow);
 				int avail = h - getPaddingTop() - getPaddingBottom() - UiUtils.toIntPx(ctx, 64) -
 						gap * (rows + 1);
 				if (rows > 0) {
@@ -295,7 +317,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 				}
 			}
 
-			adapter.setSizes(service, group, fit);
+			adapter.setSizes(service, group, fit, maxPerRow);
 			super.onMeasure(widthSpec, heightSpec);
 		}
 	}
@@ -306,6 +328,7 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		boolean fit;
 		private int serviceHeight;
 		private int groupHeight;
+		private int maxPerRow;
 
 		@SuppressWarnings("NotifyDataSetChanged")
 		void setItems(List<Item> items, boolean car) {
@@ -315,13 +338,40 @@ public class CarHomeFragment extends MainActivityFragment implements AddonManage
 		}
 
 		@SuppressWarnings("NotifyDataSetChanged")
-		void setSizes(int serviceHeight, int groupHeight, boolean fit) {
+		void setSizes(int serviceHeight, int groupHeight, boolean fit, int maxPerRow) {
 			if ((this.serviceHeight == serviceHeight) && (this.groupHeight == groupHeight) &&
-					(this.fit == fit)) return;
+					(this.fit == fit) && (this.maxPerRow == maxPerRow)) return;
 			this.fit = fit;
+			this.maxPerRow = maxPerRow;
 			this.serviceHeight = serviceHeight;
 			this.groupHeight = groupHeight;
 			notifyDataSetChanged();
+		}
+
+		int first(int type) {
+			for (int i = 0, n = items.size(); i < n; i++) if (items.get(i).type() == type) return i;
+			return 0;
+		}
+
+		static int rows(int count, int perRow) {
+			return (count + perRow - 1) / perRow;
+		}
+
+		/**
+		 * The number of the services in the row of the service at the position. On the phone the rows
+		 * are of the column count. When everything fits on one screen, the services are balanced
+		 * between the rows (e.g. 3 + 2 instead of 4 + 1), so that all the rows are full.
+		 */
+		int serviceRowSize(int position, int cols) {
+			if (!fit) return cols;
+			int n = count(Item.SERVICE);
+			int rows = rows(n, Math.max(1, maxPerRow));
+			if (rows == 0) return 1;
+			int base = n / rows;
+			int extra = n % rows; // The first rows have one more
+			int idx = position - first(Item.SERVICE);
+			int longRows = extra * (base + 1);
+			return (idx < longRows) ? base + 1 : base;
 		}
 
 		int count(int type) {

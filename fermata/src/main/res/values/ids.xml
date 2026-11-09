@@ -36,6 +36,7 @@
     <item name="disney_fragment" type="id" />
     <item name="canal_plus_fragment" type="id" />
     <item name="tvp_vod_fragment" type="id" />
+    <item name="player_pl_fragment" type="id" />
     <item name="felex_fragment" type="id" />
     <item name="cast_addon" type="id" />
     <item name="chat_addon" type="id" />

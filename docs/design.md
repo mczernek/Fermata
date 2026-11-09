@@ -33,6 +33,7 @@ Each service has its own color: solid for its tile, a dim variant for group rows
 | Disney+ | `#6F8FFF` | |
 | CANAL+ online | `#B08CFF` | |
 | TVP VOD | `#FF7FB0` | |
+| player.pl | `#FFC94D` | |
 | Web browser | `#4CB6F5` | `#0F2A3A` |
 | TV | `#2BC4A0` | `#10302B` |
 | My media | `#F2A65A` | `#2C2213` |
@@ -68,7 +69,14 @@ A `RecyclerView` grid, used on the phone and in the car:
 Columns: 2 on the phone (group rows full width), 4 when the width is ≥ 600dp (all the group rows
 share one row).
 In the car and on wide, short screens (landscape) the tiles are sized to fill the screen and the
-section titles are hidden. Focus (D-pad/rotary) shows a cream outline.
+section titles are hidden. There the services are balanced between the rows, so every row is full
+(5 services: 3 + 2, never 4 + 1); very wide screens (width ≥ 2.4 × height) take up to 5 in a row.
+Focus (D-pad/rotary) shows a cream outline.
+
+In the car only the tiles chosen in Settings -> **Android Auto home screen** (on the phone, a top
+level item right after Interface) are shown: a checkbox per addon tile, My media and Voice
+(`MainActivityPrefs.carHomeItemPref()`, all on by default). The car home reloads as soon as they
+change. The phone home always shows everything.
 
 About and Exit are in the Menu; Settings is both in the header and in the Menu.
 

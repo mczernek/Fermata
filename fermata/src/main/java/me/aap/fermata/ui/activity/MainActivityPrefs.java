@@ -85,6 +85,31 @@ public interface MainActivityPrefs
 		return MainActivityDelegate.Prefs.instance;
 	}
 
+	/**
+	 * Whether a tile is shown on the home screen in the car. The key is the addon class name or
+	 * one of the CAR_HOME_ITEM_* constants.
+	 */
+	static Pref<BooleanSupplier> carHomeItemPref(String key) {
+		synchronized (CarHomeItems.prefs) {
+			return CarHomeItems.prefs.computeIfAbsent(key,
+					k -> Pref.b("CAR_HOME_ITEM_" + k.substring(k.lastIndexOf('.') + 1), true));
+		}
+	}
+
+	String CAR_HOME_ITEM_MY_MEDIA = "MY_MEDIA";
+	String CAR_HOME_ITEM_VOICE = "VOICE";
+
+	default boolean getCarHomeItemPref(String key) {
+		return getBooleanPref(carHomeItemPref(key));
+	}
+
+	final class CarHomeItems {
+		static final Map<String, Pref<BooleanSupplier>> prefs = new HashMap<>();
+
+		private CarHomeItems() {
+		}
+	}
+
 	static boolean hasThemePref(MainActivityDelegate a, List<Pref<?>> prefs) {
 		if (AUTO && a.isCarActivity()) return prefs.contains(THEME_AA);
 		return prefs.contains(THEME_MAIN);

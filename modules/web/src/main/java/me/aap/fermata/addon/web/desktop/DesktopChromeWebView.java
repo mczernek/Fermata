@@ -61,9 +61,11 @@ public abstract class DesktopChromeWebView extends FermataWebView {
 	private static final String DESKTOP_JS = """
 			(function() {
 			  try {
-			    if (navigator.userAgent.indexOf('X11') > 0) {
+			    var platform = (navigator.userAgent.indexOf('X11') > 0) ? 'Linux x86_64' :
+			      (navigator.userAgent.indexOf('Windows NT') > 0) ? 'Win32' : null;
+			    if (platform) {
 			      Object.defineProperty(Navigator.prototype, 'platform', {
-			        get: function() { return 'Linux x86_64'; }, configurable: true
+			        get: function() { return platform; }, configurable: true
 			      });
 			    }
 			  } catch (e) {}
@@ -122,6 +124,14 @@ public abstract class DesktopChromeWebView extends FermataWebView {
 	}
 
 	/**
+	 * Whether to be desktop Chrome on Windows instead of Linux. Some sites only support Windows and
+	 * macOS as the desktop systems.
+	 */
+	protected boolean isWindowsIdentity() {
+		return false;
+	}
+
+	/**
 	 * Whether the page must be loaded as mobile Chrome, not as desktop Chrome.
 	 */
 	protected boolean isMobileIdentityPage(@NonNull Uri uri) {
@@ -169,8 +179,9 @@ public abstract class DesktopChromeWebView extends FermataWebView {
 		String major = m.matches() ? m.group(2) : fullVersion.substring(0, fullVersion.indexOf('.'));
 
 		// Chrome reports the reduced version in the User-Agent
-		String ua = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/" +
-				major + ".0.0.0 Safari/537.36";
+		boolean win = isWindowsIdentity();
+		String ua = "Mozilla/5.0 (" + (win ? "Windows NT 10.0; Win64; x64" : "X11; Linux x86_64") +
+				") AppleWebKit/537.36 (KHTML, like Gecko) Chrome/" + major + ".0.0.0 Safari/537.36";
 		desktopUserAgent = ua;
 		mobileUserAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) " +
 				"Chrome/" + major + ".0.0.0 Mobile Safari/537.36";
@@ -186,8 +197,8 @@ public abstract class DesktopChromeWebView extends FermataWebView {
 							brand("Chromium", major, fullVersion),
 							brand("Not_A Brand", "99", "99.0.0.0")))
 					.setFullVersion(fullVersion)
-					.setPlatform("Linux")
-					.setPlatformVersion("")
+					.setPlatform(win ? "Windows" : "Linux")
+					.setPlatformVersion(win ? "15.0.0" : "")
 					.setArchitecture("x86")
 					.setBitness(64)
 					.setModel("")

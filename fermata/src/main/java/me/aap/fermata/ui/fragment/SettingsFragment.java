@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
@@ -62,6 +63,7 @@ import me.aap.fermata.action.Action;
 import me.aap.fermata.action.Key;
 import me.aap.fermata.addon.AddonInfo;
 import me.aap.fermata.addon.AddonManager;
+import me.aap.fermata.addon.FermataFragmentAddon;
 import me.aap.fermata.addon.FermataAddon;
 import me.aap.fermata.addon.SubGenAddon;
 import me.aap.fermata.media.lib.MediaLib;
@@ -339,6 +341,11 @@ public class SettingsFragment extends MainActivityFragment
 		} else {
 			if (BuildConfig.AUTO) {
 				addAAInterface(a, sub1.subSet(o -> o.title = R.string.interface_prefs_aa));
+				// A top level item, right after Interface
+				addCarHomeItems(a, set.subSet(o -> {
+					o.title = R.string.car_home_items;
+					o.subtitle = R.string.car_home_items_sub;
+				}));
 			}
 			addInterface(a, sub1, MainActivityPrefs.THEME_MAIN, MainActivityPrefs.HIDE_BARS,
 					MainActivityPrefs.FULLSCREEN, MainActivityPrefs.SHOW_PG_UP_DOWN, null,
@@ -721,6 +728,31 @@ public class SettingsFragment extends MainActivityFragment
 				o.subtitle = R.string.car_home_pref_sub;
 			});
 		}
+	}
+
+	/**
+	 * The tiles of the home screen in the car, set on the phone. The same order as on the screen.
+	 */
+	private void addCarHomeItems(MainActivityDelegate a, PreferenceSet ps) {
+		AddonManager amgr = AddonManager.get();
+		for (AddonInfo ai : BuildConfig.ADDONS) {
+			if (!(amgr.getAddon(ai.className) instanceof FermataFragmentAddon)) continue;
+			addCarHomeItem(a, ps, ai.className, ai.addonName, ai.icon);
+		}
+		addCarHomeItem(a, ps, MainActivityPrefs.CAR_HOME_ITEM_MY_MEDIA, R.string.home_my_media,
+				me.aap.utils.R.drawable.folder);
+		addCarHomeItem(a, ps, MainActivityPrefs.CAR_HOME_ITEM_VOICE, R.string.voice_assistant,
+				R.drawable.record_voice);
+	}
+
+	private static void addCarHomeItem(MainActivityDelegate a, PreferenceSet ps, String key,
+																		 @StringRes int title, @DrawableRes int icon) {
+		ps.addBooleanPref(o -> {
+			o.store = a.getPrefs();
+			o.pref = MainActivityPrefs.carHomeItemPref(key);
+			o.title = title;
+			o.icon = icon;
+		});
 	}
 
 	private void addInterface(MainActivityDelegate a, PreferenceSet ps, Pref<IntSupplier> theme,

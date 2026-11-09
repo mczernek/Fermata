@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- car_app_player_pl with the full screen badge, for the full screen (CarAppService) variant -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/car_app_player_pl_bg" />
+    <foreground>
+        <layer-list>
+            <item android:drawable="@drawable/car_app_player_pl_fg" />
+            <item android:drawable="@drawable/car_app_fs_badge" />
+        </layer-list>
+    </foreground>
+    <monochrome>
+        <layer-list>
+            <item android:drawable="@drawable/car_app_player_pl_fg" />
+            <item android:drawable="@drawable/car_app_fs_badge_mono" />
+        </layer-list>
+    </monochrome>
+</adaptive-icon>
