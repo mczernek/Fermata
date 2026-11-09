@@ -212,6 +212,7 @@ public class CarHomeFragment extends MainActivityFragment
 		if (className.endsWith(".CanalPlusAddon")) return R.color.dc_canal;
 		if (className.endsWith(".TvpVodAddon")) return R.color.dc_tvp;
 		if (className.endsWith(".PlayerPlAddon")) return R.color.dc_player_pl;
+		if (className.endsWith(".PrimeVideoAddon")) return R.color.dc_prime_video;
 		if (className.endsWith(".WebBrowserAddon")) return R.color.dc_web;
 		return R.color.dc_other;
 	}

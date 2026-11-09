@@ -39,10 +39,16 @@ ext {
                     order: 6
             ],
             [
+                    name : 'prime_video',
+                    icon : 'prime_video',
+                    class: 'me.aap.fermata.addon.web.prime.PrimeVideoAddon',
+                    order: 7
+            ],
+            [
                     name : 'web_browser',
                     icon : 'web',
                     class: 'me.aap.fermata.addon.web.WebBrowserAddon',
-                    order: 7
+                    order: 8
             ]
     ]
 }

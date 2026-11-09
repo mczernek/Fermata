@@ -34,6 +34,7 @@ Each service has its own color: solid for its tile, a dim variant for group rows
 | CANAL+ online | `#B08CFF` | |
 | TVP VOD | `#FF7FB0` | |
 | player.pl | `#FFC94D` | |
+| Prime Video | `#00A8E1` | |
 | Web browser | `#4CB6F5` | `#0F2A3A` |
 | TV | `#2BC4A0` | `#10302B` |
 | My media | `#F2A65A` | `#2C2213` |

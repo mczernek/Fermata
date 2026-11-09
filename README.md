@@ -62,17 +62,17 @@ Request upload key reset); the app signing key itself is managed by Google.
   `fermata/src/auto/res/xml/automotive_app_desc.xml` (upstream disabled it, as it may conflict
   with the media service since AA 17.3). Android Auto must have "Unknown sources" enabled in its
   developer settings to list them.
-* "Youtube Full Screen", "Disney+ Full Screen", "CANAL+ online Full Screen", "TVP VOD Full Screen", "player.pl Full Screen", "TV Full Screen" and "Web browser Full Screen" Android Auto
+* "Youtube Full Screen", "Disney+ Full Screen", "CANAL+ online Full Screen", "TVP VOD Full Screen", "player.pl Full Screen", "Prime Video Full Screen", "TV Full Screen" and "Web browser Full Screen" Android Auto
   apps - the same full screen UI, opened on another initial screen (`YoutubeCarService`,
-  `DisneyCarService`, `CanalPlusCarService`, `TvpVodCarService`, `PlayerPlCarService`, `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
+  `DisneyCarService`, `CanalPlusCarService`, `TvpVodCarService`, `PlayerPlCarService`, `PrimeVideoCarService`, `TvCarService`, `WebBrowserCarService`). They are navigation apps, so they
   get the whole screen. All of them share one UI, so switching between them keeps the state. Home
   always opens the home screen with tiles. Android Auto requires an action strip, so it only has
   Menu (and Pan, for scrolling). In the split screen, tap the app icon in the Android Auto rail to get back to the
   full screen. The `web` and `tv` modules are delivered at install time, so they are always
   available.
-* "Youtube", "Disney+", "CANAL+ online", "TVP VOD", "player.pl", "TV" and "Web browser" Android Auto apps - the regular, projection based versions
+* "Youtube", "Disney+", "CANAL+ online", "TVP VOD", "player.pl", "Prime Video", "TV" and "Web browser" Android Auto apps - the regular, projection based versions
   (not navigation apps), shown in the split screen like Fermata itself
-  (`YoutubeCarActivityService`, `DisneyCarActivityService`, `CanalPlusCarActivityService`, `TvpVodCarActivityService`, `PlayerPlCarActivityService`, `TvCarActivityService`, `WebBrowserCarActivityService`,
+  (`YoutubeCarActivityService`, `DisneyCarActivityService`, `CanalPlusCarActivityService`, `TvpVodCarActivityService`, `PlayerPlCarActivityService`, `PrimeVideoCarActivityService`, `TvCarActivityService`, `WebBrowserCarActivityService`,
   `MainCarActivity.getInitialAddon()`).
 * No floating button. Its actions are on the navigation panel (`NavPanel`) - Home, Back and Menu
   in one panel, the same on the phone, in the projection based and in the full screen car apps,
@@ -83,7 +83,7 @@ Request upload key reset); the app signing key itself is managed by Google.
   screen near the target corner. Long click on Menu starts the voice assistant, if "Voice control
   with the floating button" is enabled. TV: "Add M3U IPTV source" moved to the menu.
 * Full screen video of the streaming sites (YouTube, Disney+, CANAL+ online, TVP VOD, player.pl,
-  Web browser) has no DashCinema overlay: no control panel, no title, no navigation panel
+  Prime Video, Web browser) has no DashCinema overlay: no control panel, no title, no navigation panel
   (`MainActivityDelegate.isSiteVideoMode()`, `VideoView.hasOwnControls()`). The touches go to the
   site's own player, so its controls work - e.g. the YouTube quality, speed and captions settings
   (before, the YouTube video view took the touches and showed the Fermata control panel instead).
@@ -107,6 +107,9 @@ Request upload key reset); the app signing key itself is managed by Google.
   * player.pl (`.../player`): as desktop Chrome on **Windows** (`isWindowsIdentity()`), the site
     rejects Linux ("Zmień przeglądarkę"). The site has no search URL, so search goes to Google
     (`site:player.pl`).
+  * Prime Video (`.../prime`): www.primevideo.com as desktop Chrome on Windows, the sign-in pages
+    are on the Amazon domains (amazon.com, amazon.pl, ...), included in the site origins. Search
+    uses the site's own search (`/search?phrase=`).
 * Settings -> Android Auto home screen (phone only): the tiles shown on the home screen in the
   car.
 * Default TV channels: free, official streams in `modules/tv/src/main/res/raw/tv_*.m3u`, each

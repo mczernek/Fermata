@@ -30,6 +30,7 @@
     <string name="addon_name_canal_plus" translatable="false">CANAL+ online</string>
     <string name="addon_name_tvp_vod" translatable="false">TVP VOD</string>
     <string name="addon_name_player_pl" translatable="false">player.pl</string>
+    <string name="addon_name_prime_video" translatable="false">Prime Video</string>
     <string name="addon_name_felex" translatable="false">Felex</string>
     <string name="addon_name_cast" translatable="false">Google Cast</string>
     <string name="addon_name_chat" translatable="false">ChatGPT</string>
