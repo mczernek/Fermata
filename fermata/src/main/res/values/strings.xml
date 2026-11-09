@@ -381,14 +381,14 @@
         <p>A media hub for the phone and Android Auto: streaming services, live TV and your own
         media.</p>
         <p><b>Version:</b> %1$s (%2$d)</p>
-        <p><b>Author:</b> Michal Czernek</p>
+        <p><b>Author:</b> Michał Czernek</p>
         <p><b>Source code:</b> <a href="%4$s">%4$s</a></p>
         <h3>Based on Fermata</h3>
         <p>DashCinema is based on <b>Fermata Media Player</b> by Andrey Pavlenko, a free, open
         source audio and video player.</p>
         <p><b>Fermata:</b> <a href="%3$s">%3$s</a></p>
         <h3>License</h3>
-        <p>Copyright © Andrey Pavlenko (Fermata), Michal Czernek (DashCinema).</p>
+        <p>Copyright © Andrey Pavlenko (Fermata), Michał Czernek (DashCinema).</p>
         <p>This program is free software: you can redistribute it and/or modify it under the terms
         of the GNU General Public License, version 3 (GPLv3), as published by the Free Software
         Foundation. It is distributed WITHOUT ANY WARRANTY; without even the implied warranty of
