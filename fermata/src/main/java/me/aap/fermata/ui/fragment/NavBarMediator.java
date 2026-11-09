@@ -14,6 +14,14 @@ import static me.aap.utils.ui.view.NavBarView.POSITION_LEFT;
 import static me.aap.utils.ui.view.NavBarView.POSITION_RIGHT;
 
 import android.content.Context;
+import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
+import android.text.style.URLSpan;
+import android.text.style.ClickableSpan;
+import android.text.method.LinkMovementMethod;
+import android.text.Spanned;
+import android.text.SpannableString;
+import android.text.Spannable;
 import android.view.View;
 
 import androidx.annotation.IdRes;
@@ -275,15 +283,37 @@ public class NavBarMediator extends PrefNavBarMediator
 		f.setContentProvider(g -> {
 			Context ctx = g.getContext();
 			ScalableTextView v = new ScalableTextView(ctx);
-			String url = "https://github.com/AndreyPavlenko/Fermata";
-			String html = ctx.getString(R.string.about_html, VERSION_NAME, VERSION_CODE, url);
-			int pad = UiUtils.toIntPx(ctx, 10);
-			v.setPadding(pad, pad, pad, pad);
-			v.setText(HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY));
-			v.setOnClickListener(t -> openUrl(t.getContext(), url));
+			String html = ctx.getString(R.string.about_html, VERSION_NAME, VERSION_CODE,
+					"https://github.com/AndreyPavlenko/Fermata", "https://github.com/mczernek/Fermata");
+			int pad = UiUtils.toIntPx(ctx, 16);
+			// The end of the text can be scrolled above the navigation panel
+			v.setPadding(pad, pad, pad, UiUtils.toIntPx(ctx, 96));
+			v.setText(clickableLinks(HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)));
+			v.setLinkTextColor(ContextCompat.getColor(ctx, R.color.dc_orange));
+			v.setMovementMethod(LinkMovementMethod.getInstance());
 			g.addView(v);
 		});
 		return true;
+	}
+
+	/**
+	 * Every link is opened separately, in the car the user is asked to use the phone instead.
+	 */
+	private static Spannable clickableLinks(Spanned html) {
+		SpannableString s = new SpannableString(html);
+		for (URLSpan u : s.getSpans(0, s.length(), URLSpan.class)) {
+			int start = s.getSpanStart(u);
+			int end = s.getSpanEnd(u);
+			String url = u.getURL();
+			s.removeSpan(u);
+			s.setSpan(new ClickableSpan() {
+				@Override
+				public void onClick(@NonNull View w) {
+					openUrl(w.getContext(), url);
+				}
+			}, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
+		return s;
 	}
 
 	public static void exit(MainActivityDelegate a) {
@@ -294,7 +324,7 @@ public class NavBarMediator extends PrefNavBarMediator
 	}
 
 	private static void openUrl(Context ctx, String url) {
-		if (!Utils.openUrl(ctx, url)) showInfo(ctx, R.string.use_phone_for_donation);
+		if (!Utils.openUrl(ctx, url)) showInfo(ctx, R.string.use_phone_to_open_link);
 	}
 
 	/**

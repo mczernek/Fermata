@@ -318,9 +318,6 @@
     <string name="private_key">Privatni ključ</string>
     <string name="private_key_pass">Lozinka privatnog ključa</string>
 
-    <string name="donate">Kava za razvojnog programera</string>
-    <string name="donate_text">Ako vam se sviđa aplikacija, molimo razmislite o kupnji kave.</string>
-    <string name="use_phone_for_donation">Molimo koristite svoj telefon za kupnju kave.</string>
 
     <string name="timer">Tajmer</string>
     <string name="hours">Sati</string>
@@ -365,12 +362,6 @@
     <string name="media_projection_action_text">Započni sada</string>
 
     <string name="about"> O programu</string>
-    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
-<p>Fermata Media Player" je besplatni, otvorenokodni audio i video player s jednostavnim i intuitivnim sučeljem.</p>
-<p><b>Autor:</b> Andrey Pavlenko</p>
-<p><b>Verzija:</b> %1$s (%2$d)</p>
-<p><b>Početna strancia:</b> <a href="%3$s">%3$s</a></p>
-]]></string>
 
     <string name="err_failed_to_play">Nije uspjelo reproduciranje %s</string>
     <string name="err_failed_to_play_cause">Nije uspjelo reproduciranje %1$s: %2$s</string>

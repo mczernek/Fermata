@@ -107,6 +107,8 @@ Request upload key reset); the app signing key itself is managed by Google.
   added once as a TV source ("Polska", "World News", "Sport & Music"). The local copies are
   refreshed on every version code change, so edit these files and release to update the lists.
 * Settings -> Other -> Version shows the version name and code.
+* Menu -> About: version, author, that DashCinema is based on Fermata (links to both repositories)
+  and the license (GPLv3, third-party components). The donation menu item was removed.
 * Google Play upload: `scripts/play-publish.mjs` (Node 18+, no dependencies) uploads a bundle
   through the Google Play Developer API with a service account key, that has access to the app in
   Play Console. `PLAY_SERVICE_ACCOUNT_JSON_PATH=<key.json> node scripts/play-publish.mjs --validate`

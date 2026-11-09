@@ -325,9 +325,6 @@
     <string name="private_key">개인열쇠</string>
     <string name="private_key_pass">개인열쇠 비밀번호</string>
 
-    <string name="donate">개발자에게 커피 한잔 보내기</string>
-    <string name="donate_text">이 어플리케이션이 마음에 드신다면, 저에게 커피 한잔을 사주시는 것이 어떤가요.</string>
-    <string name="use_phone_for_donation">커피를 주실 때는 스마트폰으로 해주세요.</string>
 
     <string name="timer">타이머</string>
     <string name="hours">시</string>
@@ -372,13 +369,6 @@
     <string name="media_projection_action_text">지금 시작 합니다</string>
 
     <string name="about">앱정보</string>
-    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
-        <p>Fermata Media Player (페르마타 미디어 플레이어)는 간결하고 직관적인
-        무료 오픈소스 오디오, 비디오 플레이어 입니다.</p>
-        <p><b>제작자:</b> Andrey Pavlenko</p>
-        <p><b>앱버전:</b> %1$s (%2$d)</p>
-        <p><b>홈페이지:</b> <a href="%3$s">%3$s</a></p>
-        ]]></string>
 
     <string name="err_failed_to_play">재생에 실패 했습니다 %s</string>
     <string name="err_failed_to_play_cause">지생에 실패 했습니다 %1$s: %2$s</string>

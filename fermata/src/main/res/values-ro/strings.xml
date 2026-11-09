@@ -318,9 +318,6 @@
     <string name="private_key">Cheie privată</string>
     <string name="private_key_pass">Parola cheii private</string>
 
-    <string name="donate">Cafea pentru dezvoltator</string>
-    <string name="donate_text">Dacă îți place aplicația, ia în considerare să-mi cumperi o cafea.</string>
-    <string name="use_phone_for_donation">Folosește-ți telefonul pentru a cumpăra o cafea.</string>
 
     <string name="timer">Temporizator</string>
     <string name="hours">Ore</string>
@@ -365,13 +362,6 @@
     <string name="media_projection_action_text">Începe acum</string>
 
     <string name="about">Despre</string>
-    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
-        <p>Fermata Media Player este un player audio și video gratis, open source  cu o interfață simplă și
-        intuitivă.</p>
-        <p><b>Author:</b> Andrey Pavlenko</p>
-        <p><b>Versiune:</b> %1$s (%2$d)</p>
-        <p><b>Pagina principală:</b> <a href="%3$s">%3$s</a></p>
-        ]]></string>
 
     <string name="err_failed_to_play">Redare eșuată %s</string>
     <string name="err_failed_to_play_cause">Redare eșuată %1$s: %2$s</string>

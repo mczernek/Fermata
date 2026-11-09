@@ -318,9 +318,6 @@
     <string name="private_key">សោឯកជន</string>
     <string name="private_key_pass">ពាក្យសម្ងាត់សោឯកជន</string>
 
-    <string name="donate">ផ្តល់ជូនអ្នកអភិវឌ្ឍន៍នូវកាហ្វេមួយ</string>
-    <string name="donate_text">ប្រសិន​បើ​អ្នក​ចូល​ចិត្ត​កម្មវិធី អ្នក​អាច​ទិញ​កាហ្វេ​ឱ្យ​ខ្ញុំ​បាន។</string>
-    <string name="use_phone_for_donation">អ្នកអាចប្រើទូរសព្ទរបស់អ្នកដើម្បីបរិច្ចាគកាហ្វេ។</string>
 
     <string name="timer">កម្មវិធីកំណត់ម៉ោង</string>
     <string name="hours">ម៉ោង</string>
@@ -365,12 +362,6 @@
     <string name="media_projection_action_text">ចាប់ផ្តើមឥឡូវនេះ</string>
 
     <string name="about">អំពី</string>
-    <string name="about_html"><![CDATA[<H1 តម្រឹម = \"មជ្ឈមណ្ឌល\"> កម្មវិធីចាក់មេឌៀហ្វឺម៉ាហ្គាតា </ h1>
-        <p> អ្នកលេងមេឌៀហ្វូម៉ាតាគឺជាកម្មវិធីចាក់អូឌីយ៉ូប្រភពនិងវីដេអូឥតគិតថ្លៃដែលមានលក្ខណៈសាមញ្ញនិង
-        ចំណុចប្រទាក់វិចារណញាណ។ </ p>
-        <p> <b> អ្នកនិពន្ធ: </ b> andrey pavlenko </ p>
-        <p> <p> ព្រីនៈ </ b>% 1 $ s (% 2 $ d) </ p>
-        <p> <b> ទំព័រដើម: </ b> <A HREF = \"% 3 $ s\">% 3 $ s </a> </ p>]]></string>
 
     <string name="err_failed_to_play">បាន​បរាជ័យ​ក្នុង​ការ​លេង %s</string>
     <string name="err_failed_to_play_cause">បាន​បរាជ័យ​ក្នុង​ការ​លេង %1$s៖ %2$s</string>

@@ -327,9 +327,6 @@
     <string name="private_key">Частен ключ</string>
     <string name="private_key_pass">Парола за частния ключ</string>
 
-    <string name="donate">Кафе за разработчика</string>
-    <string name="donate_text">Ако ви харесва приложението, моля, помислете за закупуване на кафе.</string>
-    <string name="use_phone_for_donation">Моля, използвайте телефона си, за да купите кафе.</string>
 
     <string name="timer">Таймер</string>
     <string name="hours">Часове</string>
@@ -374,13 +371,6 @@
     <string name="media_projection_action_text">Започнете сега</string>
 
     <string name="about">Относно</string>
-    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
-        <p>Fermata Media Player е безплатен аудио и видео плейър с отворен код, с прост и
-        интуитивен интерфейс.</p>
-        <p><b>Автор:</b> Андрей Павленко</p>
-        <p><b>Версия:</b> %1$s (%2$d)</p>
-        <p><b>Начална страница:</b> <a href="%3$s">%3$s</a></p>
-        ]]></string>
 
     <string name="err_failed_to_play">Неуспешно възпроизвеждане на %s</string>
     <string name="err_failed_to_play_cause">Неуспешно възпроизвеждане на %1$s: %2$s</string>

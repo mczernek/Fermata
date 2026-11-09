@@ -325,9 +325,6 @@
     <string name="private_key">Chave privada</string>
     <string name="private_key_pass">Palavra-passe da chave privada</string>
 
-    <string name="donate">Sai um café por favor!</string>
-    <string name="donate_text">Se gostas desta aplicação, por favor, oferece-nos um café.</string>
-    <string name="use_phone_for_donation">Por favor use o seu telefone para nos oferecer um café.</string>
 
     <string name="timer">Temporizador</string>
     <string name="hours">Horas</string>
@@ -372,12 +369,6 @@
     <string name="media_projection_action_text">Iniciar agora</string>
 
     <string name="about">Sobre</string>
-    <string name="about_html"><![CDATA[<H1 align="center">Fermata Leitor de Multimédia</H1>
-        <p>Fermata Leitor de Multimédia é gratuito, de código aberto para audio e video, com uma interface simples e intuitiva.</p>
-        <p><b>Autor:</b> Andrey Pavlenko</p>
-        <p><b>Versão:</b> %1$s (%2$d)</p>
-        <p><b>Página Inicial:</b> <a href="%3$s">%3$s</a></p>
-        ]]></string>
 
     <string name="err_failed_to_play">Falha ao reproduzir %s</string>
     <string name="err_failed_to_play_cause">Falha ao Reproduzir %1$s: %2$s</string>

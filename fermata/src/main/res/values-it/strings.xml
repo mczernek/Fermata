@@ -318,9 +318,6 @@
     <string name="private_key">Chiave privata</string>
     <string name="private_key_pass">Password chiave privata</string>
 
-    <string name="donate">Caffè per il dev</string>
-    <string name="donate_text">Se ti piace l\'app, valuta di offrirmi un caffè</string>
-    <string name="use_phone_for_donation">Acquista un caffè dal telefono</string>
 
     <string name="timer">Timer</string>
     <string name="hours">Ore</string>
@@ -365,13 +362,6 @@
     <string name="media_projection_action_text">Avvia adesso</string>
 
     <string name="about">Info</string>
-    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
-        <p>Fermata Media Player è un riproduttore audio e video gratuito,
-		open source con un\'interfaccia semplice ed intuitiva.</p>
-        <p><b>Autore:</b> Andrey Pavlenko</p>
-        <p><b>Versione:</b> %1$s (%2$d)</p>
-        <p><b>Sito web:</b> <a href="%3$s">%3$s</a></p>
-        ]]></string>
 
     <string name="err_failed_to_play">Impossibile riprodurre %s</string>
     <string name="err_failed_to_play_cause">Impossibile riprodurre %1$s: %2$s</string>

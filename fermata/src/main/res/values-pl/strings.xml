@@ -318,9 +318,6 @@
     <string name="private_key">Private key</string>
     <string name="private_key_pass">Private key password</string>
 
-    <string name="donate">Kawa dla programisty</string>
-    <string name="donate_text">Jeśli podoba Ci się aplikacja, rozważ możliwość zakupu mi kawy.</string>
-    <string name="use_phone_for_donation">Użyj telefonu, aby kupić kawe.</string>
 
     <string name="timer">Odliczanie</string>
     <string name="hours">Godziny</string>
@@ -366,11 +363,26 @@
 
     <string name="about">O programie</string>
     <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
-        <p>Fermata Media Player to darmowy odtwarzacz audio i wideo typu open source z prostym i
-         intuicyjny interfejsem.</p>
-        <p><b>Author:</b> Andrey Pavlenko</p>
-        <p><b>Version:</b> %1$s (%2$d)</p>
-        <p><b>Home page:</b> <a href="%3$s">%3$s</a></p>
+        <p>Centrum multimediów na telefon i Android Auto: serwisy streamingowe, telewizja na żywo
+        i Twoje własne multimedia.</p>
+        <p><b>Wersja:</b> %1$s (%2$d)</p>
+        <p><b>Autor:</b> Michal Czernek</p>
+        <p><b>Kod źródłowy:</b> <a href="%4$s">%4$s</a></p>
+        <h3>Na podstawie Fermata</h3>
+        <p>DashCinema powstała na bazie <b>Fermata Media Player</b> autorstwa Andreya Pavlenki,
+        darmowego odtwarzacza audio i wideo o otwartym kodzie źródłowym.</p>
+        <p><b>Fermata:</b> <a href="%3$s">%3$s</a></p>
+        <h3>Licencja</h3>
+        <p>Copyright © Andrey Pavlenko (Fermata), Michal Czernek (DashCinema).</p>
+        <p>Ten program jest wolnym oprogramowaniem: możesz go rozpowszechniać i modyfikować na
+        warunkach Powszechnej Licencji Publicznej GNU w wersji 3 (GPLv3), opublikowanej przez
+        Free Software Foundation. Jest rozpowszechniany BEZ JAKIEJKOLWIEK GWARANCJI, nawet
+        domyślnej gwarancji PRZYDATNOŚCI HANDLOWEJ albo PRZYDATNOŚCI DO OKREŚLONYCH ZASTOSOWAŃ.
+        Kod źródłowy jest dostępny pod adresami powyżej.</p>
+        <p><a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License v3.0</a></p>
+        <p><b>Komponenty zewnętrzne</b> na własnych licencjach: LibVLC (LGPL 2.1 lub nowsza),
+        AndroidX Media3 / ExoPlayer (Apache 2.0), czcionki Barlow Condensed i Plus Jakarta Sans
+        (SIL Open Font License 1.1).</p>
         ]]></string>
 
     <string name="err_failed_to_play">Nie udało się odtworzyć %s</string>
@@ -383,4 +395,5 @@
     <string name="err_failed_install_module">Nie udało się zainstalować modułu: %1$s</string>
     <string name="err_failed_to_download">Nie udało się pobrać %1$s</string>
     <string name="err_no_audio_record_perm">Pozwolenie na nagrywanie dźwięku nie zostało udzielone</string>
+    <string name="use_phone_to_open_link">Otwórz link na telefonie.</string>
 </resources>

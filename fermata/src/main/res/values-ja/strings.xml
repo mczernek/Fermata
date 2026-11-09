@@ -325,9 +325,6 @@
     <string name="private_key">プライベートキー</string>
     <string name="private_key_pass">プライベートキーパスワード</string>
 
-    <string name="donate">開発者にコーヒーを寄付</string>
-    <string name="donate_text">このアプリケーションが気に入っていただけましたら、私にコーヒーを奢って頂くことをご検討ください。</string>
-    <string name="use_phone_for_donation">コーヒーを購入していただく際は、スマートフォンをご使用ください。</string>
 
     <string name="timer">タイマー</string>
     <string name="hours">時</string>
@@ -372,13 +369,6 @@
     <string name="media_projection_action_text">今すぐ始めましょう</string>
 
     <string name="about">About</string>
-    <string name="about_html"><![CDATA[<H1 align="center">DashCinema</H1>
-        <p>Fermata Media Player is a free, open source audio and video player with a simple and
-        intuitive interface.</p>
-        <p><b>Author:</b> Andrey Pavlenko</p>
-        <p><b>Version:</b> %1$s (%2$d)</p>
-        <p><b>Home page:</b> <a href="%3$s">%3$s</a></p>
-        ]]></string>
 
     <string name="err_failed_to_play">再生に失敗しました %s</string>
     <string name="err_failed_to_play_cause">再生に失敗しました %1$s: %2$s</string>
