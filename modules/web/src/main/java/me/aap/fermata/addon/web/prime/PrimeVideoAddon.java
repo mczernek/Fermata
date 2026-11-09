@@ -16,8 +16,7 @@ import me.aap.utils.pref.PreferenceStore;
 import me.aap.utils.ui.fragment.ActivityFragment;
 
 /**
- * Prime Video in a web view, that identifies itself as desktop Chrome. The mobile site asks to
- * install the app instead of playing.
+ * Prime Video in the web view, as the mobile site (the desktop version can be enabled in the menu).
  */
 @Keep
 @SuppressWarnings("unused")
@@ -26,7 +25,7 @@ public class PrimeVideoAddon extends WebBrowserAddon {
 	private static final AddonInfo info = FermataAddon.findAddonInfo(PrimeVideoAddon.class.getName());
 	// The site is dark already, the algorithmic darkening only distorts it
 	private static final Pref<IntSupplier> PRIME_VIDEO_DARK_MODE = Pref.i("PRIME_VIDEO_DARK_MODE", DARK_MODE_DISABLED);
-	private static final Pref<BooleanSupplier> PRIME_VIDEO_DESKTOP_VERSION = Pref.b("PRIME_VIDEO_DESKTOP_VERSION", true);
+	private static final Pref<BooleanSupplier> PRIME_VIDEO_DESKTOP_VERSION = Pref.b("PRIME_VIDEO_DESKTOP_VERSION", false);
 	private static final Pref<Supplier<String[]>> PRIME_VIDEO_BOOKMARKS = Pref.sa("PRIME_VIDEO_BOOKMARKS");
 
 	@IdRes

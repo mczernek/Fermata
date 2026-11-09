@@ -141,8 +141,16 @@ public class FermataWebView extends WebView
 		if ((c != null) && c.isFullScreen()) getActivity().onSuccess(a -> c.setFullScreen(a, true));
 	}
 
+	/**
+	 * Whether the User-Agent is set by the addon preferences (mobile or desktop version, see
+	 * {@link WebBrowserAddon#getDesktopVersionPref()}). The subclasses set their own by default.
+	 */
+	protected boolean isAddonUserAgent() {
+		return getClass() == FermataWebView.class;
+	}
+
 	private void setDesktopMode(WebBrowserAddon a, boolean reload) {
-		if (getClass() != FermataWebView.class) return;
+		if (!isAddonUserAgent()) return;
 
 		WebSettings s = getSettings();
 		boolean v = a.getPreferenceStore().getBooleanPref(a.getDesktopVersionPref());

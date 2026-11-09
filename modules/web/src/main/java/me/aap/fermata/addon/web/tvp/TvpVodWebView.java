@@ -3,16 +3,14 @@ package me.aap.fermata.addon.web.tvp;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import androidx.annotation.NonNull;
-
-import java.util.Set;
-
-import me.aap.fermata.addon.web.desktop.DesktopChromeWebView;
+import me.aap.fermata.addon.web.FermataWebView;
 
 /**
- * TVP VOD as desktop Chrome.
+ * TVP VOD in the plain web view, as mobile Chrome (the addon's User-Agent), like the web browser.
+ * The mobile site plays the videos, no desktop identity is needed. The desktop version can be
+ * enabled in the menu.
  */
-public class TvpVodWebView extends DesktopChromeWebView {
+public class TvpVodWebView extends FermataWebView {
 
 	public TvpVodWebView(Context context) {
 		super(context);
@@ -26,9 +24,15 @@ public class TvpVodWebView extends DesktopChromeWebView {
 		super(context, attrs, defStyleAttr);
 	}
 
-	@NonNull
 	@Override
-	protected Set<String> getSiteOrigins() {
-		return Set.of("https://tvp.pl", "https://*.tvp.pl");
+	protected boolean isAddonUserAgent() {
+		return true;
+	}
+
+	@Override
+	protected void pageLoaded(String uri) {
+		// Do not replace the last URL of the web browser
+		addFocusHighlight();
+		android.webkit.CookieManager.getInstance().flush();
 	}
 }

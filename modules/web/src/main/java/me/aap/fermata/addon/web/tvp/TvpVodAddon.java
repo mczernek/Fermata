@@ -16,8 +16,7 @@ import me.aap.utils.pref.PreferenceStore;
 import me.aap.utils.ui.fragment.ActivityFragment;
 
 /**
- * TVP VOD in a web view, that identifies itself as desktop Chrome. The mobile site asks to
- * install the app instead of playing.
+ * TVP VOD in the web view, as the mobile site (the desktop version can be enabled in the menu).
  */
 @Keep
 @SuppressWarnings("unused")
@@ -26,7 +25,7 @@ public class TvpVodAddon extends WebBrowserAddon {
 	private static final AddonInfo info = FermataAddon.findAddonInfo(TvpVodAddon.class.getName());
 	// The site is dark already, the algorithmic darkening only distorts it
 	private static final Pref<IntSupplier> TVP_DARK_MODE = Pref.i("TVP_DARK_MODE", DARK_MODE_DISABLED);
-	private static final Pref<BooleanSupplier> TVP_DESKTOP_VERSION = Pref.b("TVP_DESKTOP_VERSION", true);
+	private static final Pref<BooleanSupplier> TVP_DESKTOP_VERSION = Pref.b("TVP_DESKTOP_VERSION", false);
 	private static final Pref<Supplier<String[]>> TVP_BOOKMARKS = Pref.sa("TVP_BOOKMARKS");
 
 	@IdRes

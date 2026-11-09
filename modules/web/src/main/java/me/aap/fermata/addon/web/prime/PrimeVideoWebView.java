@@ -3,16 +3,14 @@ package me.aap.fermata.addon.web.prime;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import androidx.annotation.NonNull;
-
-import java.util.Set;
-
-import me.aap.fermata.addon.web.desktop.DesktopChromeWebView;
+import me.aap.fermata.addon.web.FermataWebView;
 
 /**
- * Prime Video as desktop Chrome on Windows. The sign-in pages are on the Amazon domains.
+ * Prime Video in the plain web view, as mobile Chrome (the addon's User-Agent), like the web browser.
+ * The mobile site plays the videos, no desktop identity is needed. The desktop version can be
+ * enabled in the menu.
  */
-public class PrimeVideoWebView extends DesktopChromeWebView {
+public class PrimeVideoWebView extends FermataWebView {
 
 	public PrimeVideoWebView(Context context) {
 		super(context);
@@ -26,19 +24,15 @@ public class PrimeVideoWebView extends DesktopChromeWebView {
 		super(context, attrs, defStyleAttr);
 	}
 
-	@NonNull
 	@Override
-	protected Set<String> getSiteOrigins() {
-		return Set.of("https://primevideo.com", "https://*.primevideo.com", "https://amazon.com",
-				"https://*.amazon.com", "https://*.amazon.pl", "https://*.amazon.de",
-				"https://*.amazon.co.uk");
+	protected boolean isAddonUserAgent() {
+		return true;
 	}
 
-	/**
-	 * Windows, like player.pl: the best supported desktop for the protected (Widevine) playback.
-	 */
 	@Override
-	protected boolean isWindowsIdentity() {
-		return true;
+	protected void pageLoaded(String uri) {
+		// Do not replace the last URL of the web browser
+		addFocusHighlight();
+		android.webkit.CookieManager.getInstance().flush();
 	}
 }

@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 
 import me.aap.fermata.addon.AddonManager;
 import me.aap.fermata.addon.web.FermataChromeClient;
-import me.aap.fermata.addon.web.desktop.DesktopChromeWebClient;
+import me.aap.fermata.addon.web.FermataWebClient;
 import me.aap.fermata.addon.web.R;
 import me.aap.fermata.addon.web.WebBrowserAddon;
 import me.aap.fermata.addon.web.WebBrowserFragment;
@@ -48,7 +48,7 @@ public class PrimeVideoFragment extends WebBrowserFragment {
 
 		PrimeVideoWebView webView = view.findViewById(R.id.primeVideoWebView);
 		ViewGroup fullScreenView = view.findViewById(R.id.primeVideoFullScreenView);
-		webView.init(addon, new DesktopChromeWebClient(),
+		webView.init(addon, new FermataWebClient(),
 				new FermataChromeClient(webView, fullScreenView));
 		webView.loadUrl((state != null) ? state.getString("url", DEFAULT_URL) : DEFAULT_URL);
 		MainActivityDelegate.getActivityDelegate(view.getContext()).onSuccess(this::registerListeners);
@@ -86,12 +86,6 @@ public class PrimeVideoFragment extends WebBrowserFragment {
 	protected PrimeVideoWebView getWebView() {
 		View v = getView();
 		return (v != null) ? v.findViewById(R.id.primeVideoWebView) : null;
-	}
-
-	@Override
-	protected boolean isDesktopVersionSupported() {
-		// Always the desktop version, the mobile site has no player
-		return false;
 	}
 
 	@Override

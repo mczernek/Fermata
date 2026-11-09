@@ -103,13 +103,14 @@ Request upload key reset); the app signing key itself is managed by Google.
     stretched to the player area. Sign-in requires the one-time code, sent by email.
   * CANAL+ online (`.../canal`): the bot protection of the login pages (`pass.canalplus.com`,
     `pass.canal-plus.com`) rejects desktop Chrome on a phone, so they are loaded as mobile Chrome.
-  * TVP VOD (`.../tvp`): vod.tvp.pl as desktop Chrome, the mobile site asks to install the app.
   * player.pl (`.../player`): as desktop Chrome on **Windows** (`isWindowsIdentity()`), the site
     rejects Linux ("Zmień przeglądarkę"). The site has no search URL, so search goes to Google
     (`site:player.pl`).
-  * Prime Video (`.../prime`): www.primevideo.com as desktop Chrome on Windows, the sign-in pages
-    are on the Amazon domains (amazon.com, amazon.pl, ...), included in the site origins. Search
-    uses the site's own search (`/search?phrase=`).
+* TVP VOD (`.../tvp`) and Prime Video (`.../prime`) play on their mobile sites, so they are plain
+  web views with the addon's (mobile Chrome) User-Agent, like the Web browser
+  (`FermataWebView.isAddonUserAgent()`); the desktop version can be enabled in their menu. Prime
+  Video asks whether to watch in the app: "Watch here" plays in DashCinema. Prime Video search
+  uses the site's own search (`/search?phrase=`).
 * Settings -> Android Auto home screen (phone only): the tiles shown on the home screen in the
   car.
 * Default TV channels: free, official streams in `modules/tv/src/main/res/raw/tv_*.m3u`, each
